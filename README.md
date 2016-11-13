@@ -1,2 +1,2 @@
 # WGH
-The WarshipGirls Helper by C#
+The WarshipGirls Helper
