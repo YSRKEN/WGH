@@ -51,6 +51,51 @@
 			alSaveFile filename_+ ".png", "image/png"
 		}
 	return
+	// 画像をカレントカラーで切り抜く
+	#deffunc getSquare array input_rect, array output_rect
+		;カレントカラーを記憶しておく
+		cr = ginfo_r
+		cg = ginfo_g
+		cb = ginfo_b
+		;検索範囲を整理する
+		x_min = input_rect(0)
+		y_min = input_rect(1)
+		x_max = input_rect(2)
+		y_max = input_rect(3)
+		;検索する(上・左・下・右の順)
+		for x, x_min, x_max
+			flg = FALSE
+			for y, y_min, y_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(0) = x :_break
+		next
+		for y, y_min, y_max
+			flg = FALSE
+			for x, x_min, x_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(1) = y :_break
+		next
+		for x, x_max - 1, x_min - 1, -1
+			flg = FALSE
+			for y, y_min, y_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(2) = x :_break
+		next
+		for y, y_max - 1, y_min - 1, -1
+			flg = FALSE
+			for x, x_min, x_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(3) = y :_break
+		next
+	return
 #global
 
 #module GetPic
@@ -62,8 +107,6 @@
 		#cfunc GetSystemMetrics "GetSystemMetrics" int
 		#cfunc WindowFromPoint "WindowFromPoint" int, int
 		#func  GetWindowRect "GetWindowRect" int, int
-		#cfunc GetWindowDC "GetWindowDC" int
-		#func  ReleaseDC "ReleaseDC" int, int
 	// API関係の定数
 	#const NULL 0
 	#const SRCCOPY    0x00CC0020
@@ -116,10 +159,13 @@
 		window_handle = WindowFromPoint(window_position_x, window_position_y)
 		dim rect, RECT_SIZE
 		GetWindowRect window_handle, varptr(rect)
-		window_px = rect(0)
-		window_py = rect(1)
-		window_wx = rect(2) - rect(0)
-		window_wy = rect(3) - rect(1)
+		// 周囲の黒枠を削除する処理
+		dim crop_rect, 4
+		color :getSquare rect, crop_rect
+		window_px = crop_rect(0)
+		window_py = crop_rect(1)
+		window_wx = crop_rect(2) - crop_rect(0) + 1
+		window_wy = crop_rect(3) - crop_rect(1) + 1
 		// フラグ処理
 		getpos_flg@Config = TRUE
 	return TRUE
@@ -129,9 +175,9 @@
 		if(getpos_flg@Config == FALSE) :return
 		// 画像をBitBltで取得する
 		buffer TEMP_BUFFER_ID, window_wx, window_wy
-		hdc_window = GetWindowDC(window_handle)
-		BitBlt hdc, 0, 0, window_wx, window_wy, hdc_window, 0, 0, SRCCOPY | CAPTUREBLT
-		ReleaseDC window_handle, hdc_window
+		hdc_screen = CreateDC("DISPLAY", NULL, NULL, NULL)
+		BitBlt hdc, 0, 0, window_wx, window_wy, hdc_screen, window_px, window_py, SRCCOPY | CAPTUREBLT
+		DeleteDC hdc_screen
 		// 取得した画像を保存する
 		pngsave getNowTimeStr()
 	return
@@ -139,21 +185,21 @@
 
 #module GUI
 	#const MAIN_WINDOW_ID 0
+	#const BUTTON_X  64
+	#const BUTTON_Y  24
+	#const OBJ_SPACE 10
 	#deffunc initGUI
-		screen MAIN_WINDOW_ID, 200, 200
+		screen MAIN_WINDOW_ID, 200, OBJ_SPACE * 3 + BUTTON_Y * 2
 		gsel MAIN_WINDOW_ID, 2
 		title SOFT_NAME
-		pos 10, 10
-		button gosub "座標取得", *getWPBC
-		button_getwpbc_id = stat
-		button gosub "画像保存", *savePicture
-		objsize 80, 20
-		chkbox "for Twitter", twitter_flg@Config
+		pos 10, 10 :objsize 180, 24 :button gosub "座標取得", *getWPBC :button_getwpbc_id = stat
+		pos 10, 44 :objsize 64, 24 :button gosub "画像保存", *savePicture
+		pos 84, 44 :objsize 80, 24 :chkbox "for Twitter", twitter_flg@Config
 	return
 *getWPBC
 	if(getWindowPositionByClick()){
 		gsel MAIN_WINDOW_ID
-		objprm button_getwpbc_id, "(" + window_px@GetPic + "," + window_py@GetPic + ")"
+		objprm button_getwpbc_id, "(" + window_px@GetPic + "," + window_py@GetPic + ") " + window_wx@GetPic + "x" + window_wy@GetPic
 	}
 	return
 *savePicture
