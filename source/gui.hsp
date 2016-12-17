@@ -1,0 +1,24 @@
+/* GUIä÷åW */
+#module GUI
+	#const MAIN_WINDOW_ID 0
+	#const BUTTON_X  64
+	#const BUTTON_Y  24
+	#const OBJ_SPACE 10
+	#deffunc initGUI
+		screen MAIN_WINDOW_ID, 200, OBJ_SPACE * 3 + BUTTON_Y * 2
+		gsel MAIN_WINDOW_ID, 2
+		title SOFT_NAME
+		pos 10, 10 :objsize 180, 24 :button gosub "ç¿ïWéÊìæ", *getWPBC :button_getwpbc_id = stat
+		pos 10, 44 :objsize 64, 24 :button gosub "âÊëúï€ë∂", *savePicture
+		pos 84, 44 :objsize 80, 24 :chkbox "for Twitter", twitter_flg@Config
+	return
+*getWPBC
+	if(getWindowPositionByClick()){
+		gsel MAIN_WINDOW_ID
+		objprm button_getwpbc_id, "(" + window_px@GetPic + "," + window_py@GetPic + ") " + window_wx@GetPic + "x" + window_wy@GetPic
+	}
+	return
+*savePicture
+	saveWindowImage
+	return
+#global

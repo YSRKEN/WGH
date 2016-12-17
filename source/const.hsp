@@ -1,0 +1,5 @@
+/* ƒOƒ[ƒoƒ‹‚È’è”İ’è */
+#define global SOFT_NAME "WGH"
+#packopt name SOFT_NAME
+#const global TRUE  1
+#const global FALSE 0

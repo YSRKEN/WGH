@@ -1,0 +1,13 @@
+/* 汎用ルーチン関係 */
+#module Utility
+	// 現在時刻を文字列形式で返す
+	#defcfunc getNowTimeStr
+		yy = gettime(0)
+		mo = gettime(1)
+		dd = gettime(3)
+		hh = gettime(4)
+		mi = gettime(5)
+		ss = gettime(6)
+		ms = gettime(7)
+	return strf("%04d-%02d-%02d %02d-%02d-%02d-%03d", yy, mo, dd, hh, mi, ss, ms)
+#global

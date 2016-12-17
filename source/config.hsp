@@ -1,0 +1,8 @@
+/* ソフト設定関係 */
+#module Config
+	// 設定を読み込んで初期化する
+	#deffunc initConfig
+		twitter_flg = FALSE	//Twitter投稿用にスクショを加工するならTRUE
+		getpos_flg = FALSE	//座標を取得できていればTRUE
+	return
+#global
