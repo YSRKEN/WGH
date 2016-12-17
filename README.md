@@ -1,2 +1,2 @@
 # WGH
-The WarshipGirls Helper
+The WarshipGirls Helper by HSP
