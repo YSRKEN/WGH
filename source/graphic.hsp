@@ -17,10 +17,10 @@
 			clr_r = ARGB_R(clr) :clr_g = ARGB_G(clr) :clr_b = ARGB_B(clr) :clr_a = ARGB_A(clr)
 			alSetPixel 0, 0, RGBA(clr_r, clr_g, clr_b, limit(clr_a - 1, 0, 255))
 			// 保存する
-			alSaveFile filename_ + "_twi.png", "image/png"
+			alSaveFile exe_path@ + "\\ " + filename_ + "_twi.png", "image/png"
 		}else{
 			// 保存する
-			alSaveFile filename_+ ".png", "image/png"
+			alSaveFile exe_path@ + "\\ " + filename_+ ".png", "image/png"
 		}
 	return
 	// 画像をカレントカラーで切り抜く

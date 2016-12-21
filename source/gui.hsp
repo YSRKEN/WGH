@@ -1,16 +1,21 @@
 /* GUI関係 */
 #module GUI
 	#const MAIN_WINDOW_ID 0
-	#const BUTTON_X  64
-	#const BUTTON_Y  24
+	#const OBJ_X 64
+	#const OBJ_Y 24
 	#const OBJ_SPACE 10
+	#define ctype POS_X(%1) (OBJ_X * (%1) + OBJ_SPACE * ((%1) + 1))
+	#define ctype POS_Y(%1) (OBJ_Y * (%1) + OBJ_SPACE * ((%1) + 1))
+	#define ctype SIZE_X(%1) (OBJ_X * (%1) + OBJ_SPACE * ((%1) - 1))
+	#define ctype SIZE_Y(%1) (OBJ_X * (%1) + OBJ_SPACE * ((%1) - 1))
 	#deffunc initGUI
-		screen MAIN_WINDOW_ID, 200, OBJ_SPACE * 3 + BUTTON_Y * 2
+		screen MAIN_WINDOW_ID, POS_X(3), OBJ_SPACE * 3 + OBJ_Y * 2
 		gsel MAIN_WINDOW_ID, 2
 		title SOFT_NAME
-		pos 10, 10 :objsize 180, 24 :button gosub "座標取得", *getWPBC :button_getwpbc_id = stat
-		pos 10, 44 :objsize 64, 24 :button gosub "画像保存", *savePicture
-		pos 84, 44 :objsize 80, 24 :chkbox "for Twitter", twitter_flg@Config
+		pos POS_X(0), POS_Y(0) :objsize SIZE_X(2), OBJ_Y :button gosub "座標取得", *getWPBC :button_getwpbc_id = stat
+		pos POS_X(0), POS_Y(1) :objsize OBJ_X, OBJ_Y     :button gosub "画像保存", *savePicture
+		pos POS_X(1), POS_Y(1) :objsize POS_X(3) - OBJ_X - OBJ_Y - OBJ_SPACE * 4, OBJ_Y    :chkbox "Twitter用に保存", twitter_flg@Config
+		pos POS_X(3) - OBJ_Y - OBJ_SPACE, POS_Y(1) :objsize OBJ_Y, OBJ_Y :button gosub "開", *openPictureFloder
 	return
 *getWPBC
 	if(getWindowPositionByClick()){
@@ -20,5 +25,8 @@
 	return
 *savePicture
 	saveWindowImage
+	return
+*openPictureFloder
+	exec "explorer.exe " + exe_path@
 	return
 #global
