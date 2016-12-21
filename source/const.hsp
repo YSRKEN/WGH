@@ -5,3 +5,4 @@
 #const global FALSE 0
 
 exe_path = dir_cur
+pic_path = dir_cur + "\\pic"
