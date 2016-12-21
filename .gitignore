@@ -2,3 +2,6 @@ zip/
 wgh.exe
 source/hsptmp
 source/obj
+pic/
+source/packfile
+source/start.ax

@@ -2,6 +2,7 @@
 #module GUI
 	// ウィンドウID
 	#const MAIN_WINDOW_ID 0
+	#const WINDOW_ID_MAX MAIN_WINDOW_ID
 	// オブジェクトサイズ
 	#const OBJ_X 64
 	#const OBJ_Y 24
@@ -48,7 +49,9 @@
 *move
 	// ウィンドウをドラッグ可能にする処理
 	if(wparam != 1) :return
-	sendmsg hwnd_window(ginfo_act), WM_NCLBUTTONDOWN, HTCAPTION, 0
+	if(ginfo_act <= WINDOW_ID_MAX){
+		sendmsg hwnd_window(ginfo_act), WM_NCLBUTTONDOWN, HTCAPTION, 0
+	}
 return
 #global
 onclick gosub *move@GUI
