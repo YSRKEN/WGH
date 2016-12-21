@@ -62,7 +62,7 @@
 		GetWindowRect window_handle, varptr(rect)
 		// üˆÍ‚Ì•˜g‚ğíœ‚·‚éˆ—
 		dim crop_rect, 4
-		color :getSquare rect, crop_rect
+		color :getSquareInner rect, crop_rect, window_position_x, window_position_y, TRUE
 		window_px = crop_rect(0)
 		window_py = crop_rect(1)
 		window_wx = crop_rect(2) - crop_rect(0) + 1
