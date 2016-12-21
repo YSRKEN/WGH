@@ -13,6 +13,7 @@
 		gsel MAIN_WINDOW_ID, 2
 		title SOFT_NAME
 		pos POS_X(0), POS_Y(0) :objsize SIZE_X(2), OBJ_Y :button gosub "座標取得", *getWPBC :button_getwpbc_id = stat
+		pos POS_X(2), POS_Y(0) :objsize OBJ_X, OBJ_Y     :button gosub "各種情報", *showInfo
 		pos POS_X(0), POS_Y(1) :objsize OBJ_X, OBJ_Y     :button gosub "画像保存", *savePicture
 		pos POS_X(1), POS_Y(1) :objsize POS_X(3) - OBJ_X - OBJ_Y - OBJ_SPACE * 4, OBJ_Y    :chkbox "Twitter用に保存", twitter_flg@Config
 		pos POS_X(3) - OBJ_Y - OBJ_SPACE, POS_Y(1) :objsize OBJ_Y, OBJ_Y :button gosub "開", *openPictureFloder
@@ -22,6 +23,9 @@
 		gsel MAIN_WINDOW_ID
 		objprm button_getwpbc_id, "(" + window_px@GetPic + "," + window_py@GetPic + ") " + window_wx@GetPic + "x" + window_wy@GetPic
 	}
+	return
+*showInfo
+	dialog "ソフト名：" + SOFT_NAME + "\nバージョン：" + SOFT_VER + "\n最終更新日：" + SOFT_TIME + "\n作者：YSR"
 	return
 *savePicture
 	saveWindowImage

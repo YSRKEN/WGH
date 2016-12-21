@@ -1,8 +1,11 @@
 /* ƒOƒ[ƒoƒ‹‚È’è”İ’è */
 #define global SOFT_NAME "WGH"
-#packopt name SOFT_NAME
+#define global SOFT_VER  "1.0.1"
+#define global SOFT_TIME "2016/12/21"
 #const global TRUE  1
 #const global FALSE 0
+
+#packopt name SOFT_NAME
 
 exe_path = dir_cur
 pic_path = dir_cur + "\\pic"
