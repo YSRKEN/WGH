@@ -1,0 +1,132 @@
+/* 画像処理関係 */
+#module Graphic
+	#const TEMP_A2D_BUFFER_ID 0
+	// PNG形式で保存する
+	#deffunc pngsave str filename_
+		// 転送前の画像についての情報を取得する
+		id = ginfo_sel
+		wx = ginfo_winx
+		wy = ginfo_winy
+		// A2Dバッファを作成し、そちらに転送する
+		alCreateImage TEMP_A2D_BUFFER_ID, wx, wy
+		alCopyScreenToImage id, TEMP_A2D_BUFFER_ID
+		// 必要ならば、Twitter用に適宜加工する
+		if(twitter_flg@Config){
+			// 加工する
+			clr = alGetPixel(0, 0)
+			clr_r = ARGB_R(clr) :clr_g = ARGB_G(clr) :clr_b = ARGB_B(clr) :clr_a = ARGB_A(clr)
+			alSetPixel 0, 0, RGBA(clr_r, clr_g, clr_b, limit(clr_a - 1, 0, 255))
+			// 保存する
+			alSaveFile pic_path@ + "\\ " + filename_ + "_twi.png", "image/png"
+		}else{
+			// 保存する
+			alSaveFile pic_path@ + "\\ " + filename_+ ".png", "image/png"
+		}
+	return
+	// 画像をカレントカラーで切り抜く
+	#deffunc getSquare array input_rect, array output_rect
+		;カレントカラーを記憶しておく
+		cr = ginfo_r
+		cg = ginfo_g
+		cb = ginfo_b
+		;検索範囲を整理する
+		x_min = input_rect(0)
+		y_min = input_rect(1)
+		x_max = input_rect(2)
+		y_max = input_rect(3)
+		;検索する(上・左・下・右の順)
+		for x, x_min, x_max
+			flg = FALSE
+			for y, y_min, y_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(0) = x :_break
+		next
+		for y, y_min, y_max
+			flg = FALSE
+			for x, x_min, x_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(1) = y :_break
+		next
+		for x, x_max - 1, x_min - 1, -1
+			flg = FALSE
+			for y, y_min, y_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(2) = x :_break
+		next
+		for y, y_max - 1, y_min - 1, -1
+			flg = FALSE
+			for x, x_min, x_max
+				pget x, y
+				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+			next
+			if(flg) :output_rect(3) = y :_break
+		next
+	return
+	/* 画像をカレントカラーで切り抜く(内部から展開する版)
+	 * まず、元のスクリーンに対し、次の3種が存在する。
+	 * ・input_rect(外枠)
+	 * ・output_rect(抜き出したい内枠)
+	 * ・cx, cy(クリック座標)
+	 * これに対して、内側からサーチすることで、output_rectを算出する
+	 * virtual_flgがTRUEだと、virtual_screen_px@GetPicとvirtual_screen_py@GetPicを
+	 * 考慮してズラして算出してくれる(getWindowPositionByClick用)
+	 */
+	#deffunc getSquareInner array input_rect, array output_rect, int cx, int cy, int virtual_flg
+		;カレントカラーを記憶しておく
+		cr = ginfo_r
+		cg = ginfo_g
+		cb = ginfo_b
+		;検索範囲を整理する
+		x_min = input_rect(0)
+		y_min = input_rect(1)
+		x_max = input_rect(2)
+		y_max = input_rect(3)
+		output_rect(0) = x_min
+		output_rect(1) = y_min
+		output_rect(2) = x_max
+		output_rect(3) = y_max
+		;オフセットについて
+		if(virtual_flg){
+			offset_x = -virtual_screen_px@GetPic
+			offset_y = -virtual_screen_py@GetPic
+		}else{
+			offset_x = 0
+			offset_y = 0
+		}
+		;検索する(上・左・下・右の順)
+		for y, cy - 1, y_min - 1, -1
+			pget cx + offset_x, y + offset_y
+			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
+				output_rect(1) = y + 1
+				_break
+			}
+		next
+		for x, cx - 1, x_min - 1, -1
+			pget x + offset_x, cy + offset_y
+			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
+				output_rect(0) = x + 1
+				_break
+			}
+		next
+		for y, cy + 1, y_max + 1
+			pget cx + offset_x, y + offset_y
+			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
+				output_rect(3) = y - 1
+				_break
+			}
+		next
+		for x, cx + 1, x_max + 1
+			pget x + offset_x, cy + offset_y
+			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
+				output_rect(2) = x - 1
+				_break
+			}
+		next
+	return
+#global
