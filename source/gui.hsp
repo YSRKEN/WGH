@@ -56,11 +56,9 @@
 		// ログに追記
 		log_message += getNowTimeSmallStr() + " " + message_ + "\n"
 		// 追記した内容を画面に反映し、ついでにスクロールを掛ける
-		sel = ginfo_sel
-			gsel MAIN_WINDOW_ID, 2
-			objprm mesbox_log_id, log_message
-			sendmsg objinfo(mesbox_log_id, 2), EM_SCROLL, SB_BOTTOM, 0
-		gsel sel
+		gsel MAIN_WINDOW_ID, 2
+		objprm mesbox_log_id, log_message
+		sendmsg objinfo(mesbox_log_id, 2), EM_SCROLL, SB_BOTTOM, 0
 	return
 *getWPBC
 	if(getWindowPositionByClick()){
@@ -69,9 +67,6 @@
 		addMessage "座標取得完了."
 		addMessage "(" + window_px@GetPic + "," + window_py@GetPic + ") " + window_wx@GetPic + "x" + window_wy@GetPic
 	}else{
-		// 次の行がないと、座標取得をEscでキャンセルした後に
-		// 再度座標取得するとエラーで落ちる！理不尽！
-		gsel MAIN_WINDOW_ID
 		addMessage "エラー：座標取得に失敗しました."
 	}
 	return
