@@ -65,7 +65,8 @@
 		gsel MAIN_WINDOW_ID
 		objprm button_getwpbc_id, "(" + window_px@GetPic + "," + window_py@GetPic + ") " + window_wx@GetPic + "x" + window_wy@GetPic
 		addMessage "座標取得完了."
-		addMessage "(" + window_px@GetPic + "," + window_py@GetPic + ") " + window_wx@GetPic + "x" + window_wy@GetPic
+		addMessage "左上座標：(" + window_px@GetPic + "," + window_py@GetPic + ")"
+		addMessage "画面サイズ：" + window_wx@GetPic + "x" + window_wy@GetPic
 	}else{
 		addMessage "エラー：座標取得に失敗しました."
 	}
