@@ -1,14 +1,20 @@
 # WGH
 The WarshipGirls Helper by HSP
 
+
 ## 使い方
-![help_1](https://cloud.githubusercontent.com/assets/3734392/21389352/9ff7149e-c7c4-11e6-9210-73ce757b4e1b.png)
+　[help.md](./help/help.md)を参照してください。
 
 ## 注意書き
 - このソフトで生じたいかなる損害についても責任を負いません
 - このソフトは [MIT License](https://ja.osdn.net/projects/opensource/wiki/licenses%2FMIT_license) です
 
 ## 更新履歴
+・Ver.1.0.2(2016/12/26)  
+- 実行ログを表示する機能をつけた
+- ズレを検知し、ログに表示する機能をつけた
+- 座標取得を中止した際に、座標取得状況がリセットされるようにした
+
 ・Ver.1.0.1(2016/12/21)  
 - ソースコードをモジュールごとに分割した
 - 座標を取得するルーチンを変更した
