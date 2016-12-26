@@ -9,7 +9,17 @@
 #include "gui.hsp"
 
 // メインルーチン
+
+// 初期化ルーチン
 initConfig
 initGetPic
 initGUI
-stop
+// メインループ
+repeat
+	// ズレ検知
+	if(isPositionShifting()){
+		addMessage "画面のズレを検知しました."
+	}
+	// 時間待ち(10fps)
+	await 100
+loop

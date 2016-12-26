@@ -1,7 +1,7 @@
 /* GUI関係 */
 #module GUI
 	// ウィンドウID
-	#const MAIN_WINDOW_ID 0
+	#const MAIN_WINDOW_ID 0	// メイン画面
 	#const WINDOW_ID_MAX MAIN_WINDOW_ID
 	// オブジェクトサイズ
 	#const OBJ_X 64
@@ -59,6 +59,17 @@
 		gsel MAIN_WINDOW_ID, 2
 		objprm mesbox_log_id, log_message
 		sendmsg objinfo(mesbox_log_id, 2), EM_SCROLL, SB_BOTTOM, 0
+	return
+	// カレントウィンドウをメイン画面に戻す
+	// これ噛まさないとsendmsg周りで強制落ちするとかふざけんなボケ
+	#deffunc resetCurrentWindow
+		gsel MAIN_WINDOW_ID
+	return
+	// 座標取得フラグをリセットする
+	#deffunc resetGetPos
+		resetCurrentWindow
+		objprm button_getwpbc_id, "座標取得"
+		getpos_flg@Config = FALSE
 	return
 *getWPBC
 	if(getWindowPositionByClick()){

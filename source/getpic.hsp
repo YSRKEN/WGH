@@ -56,7 +56,7 @@
 			wait 5
 		loop
 		gsel CLICK_SCREEN_ID, -1
-		if(click_flg == FALSE) :return FALSE
+		if(click_flg == FALSE) :resetGetPos :return FALSE
 		// クリック位置から対象のウィンドウのハンドル・位置・サイズを取得する
 		window_handle = WindowFromPoint(window_position_x, window_position_y)
 		dim rect, RECT_SIZE
@@ -68,6 +68,8 @@
 		window_py = crop_rect(1)
 		window_wx = crop_rect(2) - crop_rect(0) + 1
 		window_wy = crop_rect(3) - crop_rect(1) + 1
+		// とりあえずずれ検知しておく
+		if(isPositionShifting()) :return FALSE
 		// フラグ処理
 		getpos_flg@Config = TRUE
 	return TRUE
@@ -84,4 +86,21 @@
 		file_name = getNowTimeStr() + ".png"
 		pngsave getNowTimeStr()
 	return file_name
+	// ズレを検知する
+	#defcfunc isPositionShifting
+		// そもそも座標取得していなければズレを検知しようがない
+		if(getpos_flg@Config == FALSE) :return FALSE
+		// 取得している座標よりも1ピクセルだけ大きく画像を取得する
+		buffer TEMP_BUFFER_ID, window_wx + 2, window_wy + 2
+		hdc_screen = CreateDC("DISPLAY", NULL, NULL, NULL)
+		BitBlt hdc, 0, 0, window_wx + 2, window_wy + 2, hdc_screen, window_px - 1, window_py - 1, SRCCOPY | CAPTUREBLT
+		DeleteDC hdc_screen
+		// 四隅の色が黒色(背景色)でなければ、ズレたと判断する
+		pget 0, 0                         :if(ginfo_r + ginfo_g + ginfo_b != 0) :resetGetPos :return TRUE
+		pget 0, window_wy + 1             :if(ginfo_r + ginfo_g + ginfo_b != 0) :resetGetPos :return TRUE
+		pget window_wx + 1, 0             :if(ginfo_r + ginfo_g + ginfo_b != 0) :resetGetPos :return TRUE
+		pget window_wx + 1, window_wy + 1 :if(ginfo_r + ginfo_g + ginfo_b != 0) :resetGetPos :return TRUE
+		// おまじない
+		resetCurrentWindow
+	return FALSE
 #global
