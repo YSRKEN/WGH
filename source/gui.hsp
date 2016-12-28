@@ -1,7 +1,8 @@
 /* GUI関係 */
 #module GUI
 	// ウィンドウID
-	#const MAIN_WINDOW_ID 0	// メイン画面
+	#const MAIN_WINDOW_ID   0	// メイン画面
+	#const OPTION_WINDOW_ID 1	// オプション画面
 	#const WINDOW_ID_MAX MAIN_WINDOW_ID
 	// オブジェクトサイズ
 	#const OBJ_X 64
@@ -22,12 +23,19 @@
 	#deffunc initGUI
 		dim hwnd_window
 
+		// オプション画面
+		// ウィンドウを設置
+		screen OPTION_WINDOW_ID, POS_X(3), POS_Y(3)
+		hwnd_window(MAIN_WINDOW_ID) = hwnd
+		title "オプション"
+		gsel OPTION_WINDOW_ID, -1
+
 		// メイン画面
 		// ウィンドウを設置
-		screen MAIN_WINDOW_ID, POS_X(3), POS_Y(5)
+		screen MAIN_WINDOW_ID, POS_X(3), POS_Y(6)
 		hwnd_window(MAIN_WINDOW_ID) = hwnd
-		gsel MAIN_WINDOW_ID, 2
 		title SOFT_NAME
+		gsel MAIN_WINDOW_ID, 2
 		// ボタンなどのオブジェクトを設置
 		pos POS_X(0), POS_Y(0)
 			objsize SIZE_X(2), OBJ_Y
@@ -47,6 +55,9 @@
 			objsize OBJ_Y, OBJ_Y
 			button gosub "開", *openPictureFloder
 		pos POS_X(0), POS_Y(2)
+			objsize OBJ_X, OBJ_Y
+			button gosub "オプション...", *showOptionWindow
+		pos POS_X(0), POS_Y(3)
 			sdim log_message, 32768
 			mesbox log_message, SIZE_X(3), SIZE_Y(3), 4
 			mesbox_log_id = stat
@@ -104,6 +115,10 @@
 	// 画像の保存フォルダをエクスプローラで開く処理
 	exec "explorer.exe " + pic_path@
 	addMessage "保存フォルダを開く..."
+	return
+*showOptionWindow
+	// オプション画面を表示する処理
+	gsel OPTION_WINDOW_ID, 2
 	return
 *move
 	// ウィンドウをドラッグ可能にする処理
