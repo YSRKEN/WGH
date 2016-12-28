@@ -18,9 +18,10 @@
 	#const SM_CYVIRTUALSCREEN 0x0000004F
 	// API関係ではない定数
 	#const RECT_SIZE 4
-	#const VIRTUAL_SCREEN_ID 10
-	#const CLICK_SCREEN_ID   11
-	#const TEMP_BUFFER_ID    12
+	#const VIRTUAL_SCREEN_ID 10	//仮想画面全体のスクショ
+	#const CLICK_SCREEN_ID   11	//座標取得時にクリックする画面
+	#const SHOT_BUFFER_ID    12	//スクショ用バッファ
+	#const SHIFT_BUFFER_ID   13	//ズレ検知用バッファ
 	// GetPicモジュールを初期化
 	#deffunc initGetPic
 		// 仮想画面の左上座標および大きさを取得
@@ -28,14 +29,22 @@
 		virtual_screen_py = GetSystemMetrics(SM_YVIRTUALSCREEN)
 		virtual_screen_wx = GetSystemMetrics(SM_CXVIRTUALSCREEN)
 		virtual_screen_wy = GetSystemMetrics(SM_CYVIRTUALSCREEN)
+		// とりあえず領域を確保しておく
+		buffer SHOT_BUFFER_ID
+		buffer SHIFT_BUFFER_ID
 	return
-	// クリックした画面を捕捉する
-	#defcfunc getWindowPositionByClick
-		// 仮想画面全体をスクショして、縁無しウィンドウ表示する
+	// 仮想画面全体をスクショする
+	#deffunc getVirtualScreen
 		buffer VIRTUAL_SCREEN_ID, virtual_screen_wx, virtual_screen_wy
 		hdc_screen = CreateDC("DISPLAY", NULL, NULL, NULL)
 		BitBlt hdc, 0, 0, virtual_screen_wx, virtual_screen_wy, hdc_screen, virtual_screen_px, virtual_screen_py, SRCCOPY | CAPTUREBLT
 		DeleteDC hdc_screen
+	return
+	// クリックした画面を捕捉する
+	#defcfunc getWindowPositionByClick
+		// 仮想画面全体をスクショする
+		getVirtualScreen
+		// それを元に、縁無しウィンドウを表示する
 		bgscr CLICK_SCREEN_ID, virtual_screen_wx, virtual_screen_wy,,virtual_screen_px, virtual_screen_py
 		gsel CLICK_SCREEN_ID, 2
 		gcopy VIRTUAL_SCREEN_ID, 0, 0, virtual_screen_wx, virtual_screen_wy
@@ -59,43 +68,49 @@
 		if(click_flg == FALSE) :resetGetPos :return FALSE
 		// クリック位置から対象のウィンドウのハンドル・位置・サイズを取得する
 		window_handle = WindowFromPoint(window_position_x, window_position_y)
-		dim rect, RECT_SIZE
-		GetWindowRect window_handle, varptr(rect)
+		dim window_rect, RECT_SIZE
+		GetWindowRect window_handle, varptr(window_rect)
+		if(stat == 0) :return FALSE
 		// 周囲の黒枠を削除する処理
 		dim crop_rect, 4
-		color :getSquareInner rect, crop_rect, window_position_x, window_position_y, TRUE
+		color :gsel VIRTUAL_SCREEN_ID :getSquareInner window_rect, crop_rect, window_position_x, window_position_y, TRUE
 		window_px = crop_rect(0)
 		window_py = crop_rect(1)
 		window_wx = crop_rect(2) - crop_rect(0) + 1
 		window_wy = crop_rect(3) - crop_rect(1) + 1
+		if(window_wx <= 0 || window_wy <= 0) :resetGetPos :return FALSE
 		// とりあえずずれ検知しておく
 		if(isPositionShifting()) :return FALSE
 		// フラグ処理
 		getpos_flg@Config = TRUE
 	return TRUE
+	// 常時画像を取得しておく
+	#deffunc getScreenshot
+		// 座標取得していなければ何もしない
+		if(getpos_flg@Config == FALSE) :return
+		// 画像を取得する
+		hdc_screen = CreateDC("DISPLAY", NULL, NULL, NULL)
+		buffer SHOT_BUFFER_ID, window_wx, window_wy
+		BitBlt hdc, 0, 0, window_wx, window_wy, hdc_screen, window_px, window_py, SRCCOPY | CAPTUREBLT
+		buffer SHIFT_BUFFER_ID, window_wx + 2, window_wy + 2
+		BitBlt hdc, 0, 0, window_wx + 2, window_wy + 2, hdc_screen, window_px - 1, window_py - 1, SRCCOPY | CAPTUREBLT
+		DeleteDC hdc_screen
+	return
 	// 捕捉した画面を保存する
 	#defcfunc saveWindowImage
 		// 座標が取得できていなければ保存を行わない
 		if(getpos_flg@Config == FALSE) :return ""
-		// 画像をBitBltで取得する
-		buffer TEMP_BUFFER_ID, window_wx, window_wy
-		hdc_screen = CreateDC("DISPLAY", NULL, NULL, NULL)
-		BitBlt hdc, 0, 0, window_wx, window_wy, hdc_screen, window_px, window_py, SRCCOPY | CAPTUREBLT
-		DeleteDC hdc_screen
 		// 取得した画像を保存する
 		file_name = getNowTimeStr() + ".png"
+		gsel SHOT_BUFFER_ID
 		pngsave getNowTimeStr()
 	return file_name
 	// ズレを検知する
 	#defcfunc isPositionShifting
 		// そもそも座標取得していなければズレを検知しようがない
 		if(getpos_flg@Config == FALSE) :return FALSE
-		// 取得している座標よりも1ピクセルだけ大きく画像を取得する
-		buffer TEMP_BUFFER_ID, window_wx + 2, window_wy + 2
-		hdc_screen = CreateDC("DISPLAY", NULL, NULL, NULL)
-		BitBlt hdc, 0, 0, window_wx + 2, window_wy + 2, hdc_screen, window_px - 1, window_py - 1, SRCCOPY | CAPTUREBLT
-		DeleteDC hdc_screen
 		// 四隅の色が黒色(背景色)でなければ、ズレたと判断する
+		gsel SHIFT_BUFFER_ID
 		pget 0, 0                         :if(ginfo_r + ginfo_g + ginfo_b != 0) :resetGetPos :return TRUE
 		pget 0, window_wy + 1             :if(ginfo_r + ginfo_g + ginfo_b != 0) :resetGetPos :return TRUE
 		pget window_wx + 1, 0             :if(ginfo_r + ginfo_g + ginfo_b != 0) :resetGetPos :return TRUE
@@ -103,4 +118,26 @@
 		// おまじない
 		resetCurrentWindow
 	return FALSE
+	// ズレを自動修正する
+	#defcfunc tryFixPositionShifting
+		// 仮想画面を取得し直す
+		getVirtualScreen
+		// 現在のウィンドウの位置を取得する
+		dim new_window_rect, RECT_SIZE
+		GetWindowRect window_handle, varptr(new_window_rect)
+		if(stat == 0) :return FALSE
+		// 相対的なズレを足し込んで、再び画面の位置を推定する
+		window_position_x += new_window_rect(0) - window_rect(0)
+		window_position_y += new_window_rect(1) - window_rect(1)
+		color :gsel VIRTUAL_SCREEN_ID :getSquareInner new_window_rect, crop_rect, window_position_x, window_position_y, TRUE
+		window_px = crop_rect(0)
+		window_py = crop_rect(1)
+		window_wx = crop_rect(2) - crop_rect(0) + 1
+		window_wy = crop_rect(3) - crop_rect(1) + 1
+		if(window_wx <= 0 || window_wy <= 0) :resetGetPos :return FALSE
+		// とりあえずずれ検知しておく
+		if(isPositionShifting()) :return FALSE
+		// フラグ処理
+		getpos_flg@Config = TRUE
+	return TRUE
 #global

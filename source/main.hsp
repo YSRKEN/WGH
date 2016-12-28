@@ -16,9 +16,18 @@ initGetPic
 initGUI
 // メインループ
 repeat
+	// 画像をあらかじめ取得しておく
+	getScreenshot
 	// ズレ検知
 	if(isPositionShifting()){
 		addMessage "画面のズレを検知しました."
+		addMessage "自動ズレ修正を試みます."
+		if(tryFixPositionShifting()){
+			addMessage "ズレ修正に成功しました."
+			showGetPosMessage
+		}else{
+			addMessage "エラー：ズレ修正に失敗しました."
+		}
 	}
 	// 時間待ち(10fps)
 	await 100
