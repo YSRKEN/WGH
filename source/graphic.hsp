@@ -129,11 +129,17 @@
 			}
 		next
 	return
-	// 色指定
+	// rgbで色指定
 	#deffunc color_rgb int rgb_
 		color (rgb_ >> 16), (rgb_ >> 8) & $FF, rgb_ & $FF
 	return
 	// r,g,bをrgbに変換
 	#defcfunc pack_rgb int r_, int g_, int b_
 	return (r_ << 16) | (g_ << 8) | b_
+	// rgbを文字に変換
+	#defcfunc ToStrColor int rgb_
+		rgb_r = (rgb_ >> 16)
+		rgb_g = (rgb_ >> 8) & $FF
+		rgb_b = rgb_ & $FF
+	return strf("%d,%d,%d", rgb_r, rgb_g, rgb_b)
 #global

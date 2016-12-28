@@ -152,7 +152,7 @@
 *selectBgColor
 	dialog "", 33
 	if(stat != 0){
-		bg_color@Config = pack_rgb(ginfo_r, ginfo_b, ginfo_b)
+		bg_color@Config = pack_rgb(ginfo_r, ginfo_g, ginfo_b)
 		drawBgIcon
 		resetCurrentWindow
 	}
