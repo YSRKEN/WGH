@@ -5,6 +5,7 @@
 		// 設定を初期化
 		twitter_flg = FALSE	//Twitter投稿用にスクショを加工するならTRUE
 		getpos_flg = FALSE	//座標を取得できていればTRUE
+		bg_color = $000000	//背景色設定
 		// フォルダの存在をチェックして生成
 		dirlist x, pic_path@, 5
 		if(stat == 0) :mkdir pic_path@
