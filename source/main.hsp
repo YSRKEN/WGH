@@ -18,6 +18,8 @@ initGUI
 timer_sec = gettime(6)
 repeat
 	// 毎フレーム行う処理
+	// 終了フラグが付いた時は終了する
+	if(isExit()) :break
 	// 画像をあらかじめ取得しておく
 	getScreenshot
 
@@ -40,3 +42,4 @@ repeat
 	// 時間待ち(5fps)
 	await 200
 loop
+end

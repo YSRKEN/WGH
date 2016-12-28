@@ -3,7 +3,7 @@
 	// ウィンドウID
 	#const MAIN_WINDOW_ID   0	// メイン画面
 	#const OPTION_WINDOW_ID 1	// オプション画面
-	#const WINDOW_ID_MAX MAIN_WINDOW_ID
+	#const WINDOW_ID_MAX OPTION_WINDOW_ID
 	// オブジェクトサイズ
 	#const OBJ_X 64
 	#const OBJ_Y 24
@@ -21,12 +21,12 @@
 	#const BM_GETCHECK $F0
 	// GUIを初期化
 	#deffunc initGUI
-		dim hwnd_window
+		dim hwnd_window, WINDOW_ID_MAX
 
 		// オプション画面
 		// ウィンドウを設置
 		screen OPTION_WINDOW_ID, POS_X(3), POS_Y(3)
-		hwnd_window(MAIN_WINDOW_ID) = hwnd
+		hwnd_window(OPTION_WINDOW_ID) = hwnd
 		title "オプション"
 		gsel OPTION_WINDOW_ID, -1
 
@@ -61,6 +61,8 @@
 			sdim log_message, 32768
 			mesbox log_message, SIZE_X(3), SIZE_Y(3), 4
 			mesbox_log_id = stat
+
+		exit_flg = FALSE
 	return
 	// ログに追加
 	#deffunc addMessage str message_
@@ -90,6 +92,9 @@
 		addMessage "左上座標：(" + window_px@GetPic + "," + window_py@GetPic + ")"
 		addMessage "画面サイズ：" + window_wx@GetPic + "x" + window_wy@GetPic
 	return
+	// 終了状態かをチェックする
+	#defcfunc isExit
+	return exit_flg
 *getWPBC
 	if(getWindowPositionByClick()){
 		showGetPosMessage
@@ -126,7 +131,15 @@
 	if(ginfo_act <= WINDOW_ID_MAX){
 		sendmsg hwnd_window(ginfo_act), WM_NCLBUTTONDOWN, HTCAPTION, 0
 	}
-return
+	return
+*close
+	// ソフトウェア終了時の処理
+	if(ginfo_act == MAIN_WINDOW_ID){
+		exit_flg = TRUE
+	}else:if(ginfo_act <= WINDOW_ID_MAX){
+		gsel ginfo_act, -1
+	}
+	return
 *action_object
 	if(lparam == objinfo(chkbox_twitter_id, 2)){
 		// 「Twitter用に保存」チェックボックスのチェック状態を表示
@@ -138,7 +151,8 @@ return
 			addMessage "Twitter用に保存：OFF"
 		}
 	}
-return
+	return
 #global
 onclick gosub *move@GUI
+onexit gosub *close@GUI
 oncmd gosub *action_object@GUI, WM_COMMAND@GUI
