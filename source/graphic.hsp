@@ -24,16 +24,16 @@
 		}
 	return
 	// 画像をカレントカラーで切り抜く
-	#deffunc getSquare array input_rect, array output_rect
+	#deffunc getSquare array input_rect_, array output_rect_
 		;カレントカラーを記憶しておく
 		cr = ginfo_r
 		cg = ginfo_g
 		cb = ginfo_b
 		;検索範囲を整理する
-		x_min = input_rect(0)
-		y_min = input_rect(1)
-		x_max = input_rect(2)
-		y_max = input_rect(3)
+		x_min = input_rect_(0)
+		y_min = input_rect_(1)
+		x_max = input_rect_(2)
+		y_max = input_rect_(3)
 		;検索する(上・左・下・右の順)
 		for x, x_min, x_max
 			flg = FALSE
@@ -41,7 +41,7 @@
 				pget x, y
 				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
 			next
-			if(flg) :output_rect(0) = x :_break
+			if(flg) :output_rect_(0) = x :_break
 		next
 		for y, y_min, y_max
 			flg = FALSE
@@ -49,7 +49,7 @@
 				pget x, y
 				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
 			next
-			if(flg) :output_rect(1) = y :_break
+			if(flg) :output_rect_(1) = y :_break
 		next
 		for x, x_max - 1, x_min - 1, -1
 			flg = FALSE
@@ -57,7 +57,7 @@
 				pget x, y
 				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
 			next
-			if(flg) :output_rect(2) = x :_break
+			if(flg) :output_rect_(2) = x :_break
 		next
 		for y, y_max - 1, y_min - 1, -1
 			flg = FALSE
@@ -65,7 +65,7 @@
 				pget x, y
 				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
 			next
-			if(flg) :output_rect(3) = y :_break
+			if(flg) :output_rect_(3) = y :_break
 		next
 	return
 	/* 画像をカレントカラーで切り抜く(内部から展開する版)
@@ -77,22 +77,22 @@
 	 * virtual_flgがTRUEだと、virtual_screen_px@GetPicとvirtual_screen_py@GetPicを
 	 * 考慮してズラして算出してくれる(getWindowPositionByClick用)
 	 */
-	#deffunc getSquareInner array input_rect, array output_rect, int cx, int cy, int virtual_flg
+	#deffunc getSquareInner array input_rect_, array output_rect_, int cx_, int cy_, int virtual_flg_
 		;カレントカラーを記憶しておく
 		cr = ginfo_r
 		cg = ginfo_g
 		cb = ginfo_b
 		;検索範囲を整理する
-		x_min = input_rect(0)
-		y_min = input_rect(1)
-		x_max = input_rect(2)
-		y_max = input_rect(3)
-		output_rect(0) = x_min
-		output_rect(1) = y_min
-		output_rect(2) = x_max
-		output_rect(3) = y_max
+		x_min = input_rect_(0)
+		y_min = input_rect_(1)
+		x_max = input_rect_(2)
+		y_max = input_rect_(3)
+		output_rect_(0) = x_min
+		output_rect_(1) = y_min
+		output_rect_(2) = x_max
+		output_rect_(3) = y_max
 		;オフセットについて
-		if(virtual_flg){
+		if(virtual_flg_){
 			offset_x = -virtual_screen_px@GetPic
 			offset_y = -virtual_screen_py@GetPic
 		}else{
@@ -100,33 +100,46 @@
 			offset_y = 0
 		}
 		;検索する(上・左・下・右の順)
-		for y, cy - 1, y_min - 1, -1
-			pget cx + offset_x, y + offset_y
+		for y, cy_ - 1, y_min - 1, -1
+			pget cx_ + offset_x, y + offset_y
 			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect(1) = y + 1
+				output_rect_(1) = y + 1
 				_break
 			}
 		next
-		for x, cx - 1, x_min - 1, -1
-			pget x + offset_x, cy + offset_y
+		for x, cx_ - 1, x_min - 1, -1
+			pget x + offset_x, cy_ + offset_y
 			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect(0) = x + 1
+				output_rect_(0) = x + 1
 				_break
 			}
 		next
-		for y, cy + 1, y_max + 1
-			pget cx + offset_x, y + offset_y
+		for y, cy_ + 1, y_max + 1
+			pget cx_ + offset_x, y + offset_y
 			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect(3) = y - 1
+				output_rect_(3) = y - 1
 				_break
 			}
 		next
-		for x, cx + 1, x_max + 1
-			pget x + offset_x, cy + offset_y
+		for x, cx_ + 1, x_max + 1
+			pget x + offset_x, cy_ + offset_y
 			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect(2) = x - 1
+				output_rect_(2) = x - 1
 				_break
 			}
 		next
 	return
+	// rgbで色指定
+	#deffunc color_rgb int rgb_
+		color (rgb_ >> 16), (rgb_ >> 8) & $FF, rgb_ & $FF
+	return
+	// r,g,bをrgbに変換
+	#defcfunc pack_rgb int r_, int g_, int b_
+	return (r_ << 16) | (g_ << 8) | b_
+	// rgbを文字に変換
+	#defcfunc ToStrColor int rgb_
+		rgb_r = (rgb_ >> 16)
+		rgb_g = (rgb_ >> 8) & $FF
+		rgb_b = rgb_ & $FF
+	return strf("%d,%d,%d", rgb_r, rgb_g, rgb_b)
 #global

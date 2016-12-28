@@ -1,12 +1,65 @@
 /* ソフト設定関係 */
 #module Config
+	// 設定読み込み用ユーティリティ
+	// (返り値がTRUEだとエラーが発生している)
+	#defcfunc jsongetint var variable_, str name_, int ptr_
+		jsongeti@ temp, name_, ptr_
+		if(stat == 1) :return TRUE
+		variable_ = temp
+	return FALSE
+	#defcfunc jsongetstr var variable_, str name_, int ptr_
+		sdim temp, 1024
+		jsongets@ temp, name_, ptr_
+		if(stat == 1) :return TRUE
+		variable_ = temp
+	return FALSE
 	// 設定を読み込んで初期化する
 	#deffunc initConfig
 		// 設定を初期化
-		twitter_flg = FALSE	//Twitter投稿用にスクショを加工するならTRUE
-		getpos_flg = FALSE	//座標を取得できていればTRUE
+		// 設定を読み込み
+		if(loadConfig()){
+			dialog "セーブデータを読み込めませんでした.\nデフォルトの設定で起動します.", 1, SOFT_NAME
+			twitter_flg = FALSE	//Twitter投稿用にスクショを加工するならTRUE
+			getpos_flg = FALSE	//座標を取得できていればTRUE
+			bg_color = $000000	//背景色設定
+		}
 		// フォルダの存在をチェックして生成
 		dirlist x, pic_path@, 5
 		if(stat == 0) :mkdir pic_path@
+		dirlist x, save_path@, 5
+		if(stat == 0) :mkdir save_path@
+	return
+	// JSONから設定を読み込む
+	// 返り値がTRUEだと読み込み時にエラーが発生していることを示す
+	#defcfunc loadConfig
+		exist save_path@ + "\\config.json"
+		if(strsize == -1) :return TRUE
+		// ファイルを開く
+		notesel json_str
+		noteload save_path@ + "\\config.json"
+		jsonopen@ json_ptr, json_str
+		// twitter_flg
+		if(jsongetint(twitter_flg, "twitter_flg", json_ptr)) :return TRUE
+		twitter_flg = limit(twitter_flg, FALSE, TRUE)
+		// bg_color
+		str_color = ""
+		if(jsongetstr(str_color, "bg_color", json_ptr)) :return TRUE
+		split str_color, ",", temp
+		if(length(temp) < 3) :return TRUE
+		rgb_r = limit(int(temp(0)), 0, 255)
+		rgb_g = limit(int(temp(1)), 0, 255)
+		rgb_b = limit(int(temp(2)), 0, 255)
+		bg_color = pack_rgb(rgb_r, rgb_g, rgb_b)
+		jsonclose@
+	return FALSE
+	// 設定をJSONに保存する
+	#deffunc saveConfig
+		sdim json_str, 32768
+		json_str = "{\n"
+		json_str += "    \"twitter_flg\":" + twitter_flg + ",\n"
+		json_str += "    \"bg_color\":\"" + ToStrColor(bg_color) + "\"\n"
+		json_str += "}\n"
+		notesel json_str
+		notesave save_path@ + "\\config.json"
 	return
 #global
