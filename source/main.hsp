@@ -15,20 +15,28 @@ initConfig
 initGetPic
 initGUI
 // メインループ
+timer_sec = gettime(6)
 repeat
+	// 毎フレーム行う処理
 	// 画像をあらかじめ取得しておく
 	getScreenshot
-	// ズレ検知
-	if(isPositionShifting()){
-		addMessage "画面のズレを検知しました."
-		addMessage "自動ズレ修正を試みます."
-		if(tryFixPositionShifting()){
-			addMessage "ズレ修正に成功しました."
-			showGetPosMessage
-		}else{
-			addMessage "エラー：ズレ修正に失敗しました."
+
+	// 毎秒行う処理
+	timer_sec_now = gettime(6)
+	if(timer_sec != timer_sec_now){
+		timer_sec = timer_sec_now
+		// ズレ検知
+		if(isPositionShifting()){
+			addMessage "画面のズレを検知しました."
+			addMessage "自動ズレ修正を試みます."
+			if(tryFixPositionShifting()){
+				addMessage "ズレ修正に成功しました."
+				showGetPosMessage
+			}else{
+				addMessage "エラー：ズレ修正に失敗しました."
+			}
 		}
 	}
-	// 時間待ち(10fps)
-	await 100
+	// 時間待ち(5fps)
+	await 200
 loop

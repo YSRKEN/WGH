@@ -95,6 +95,8 @@
 		buffer SHIFT_BUFFER_ID, window_wx + 2, window_wy + 2
 		BitBlt hdc, 0, 0, window_wx + 2, window_wy + 2, hdc_screen, window_px - 1, window_py - 1, SRCCOPY | CAPTUREBLT
 		DeleteDC hdc_screen
+		// ‚¨‚Ü‚¶‚È‚¢
+		resetCurrentWindow
 	return
 	// •ß‘¨‚µ‚½‰æ–Ê‚ð•Û‘¶‚·‚é
 	#defcfunc saveWindowImage
