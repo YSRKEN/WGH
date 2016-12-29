@@ -144,6 +144,11 @@
 	return TRUE
 	// ‰“ª‰æ–Ê‚©‚ð”»’è‚·‚é
 	#defcfunc isExpeditionScene
-		
-	return FALSE
+		getDifferenceHash ahash, SHOT_BUFFER_ID, 10.11, 76.36, 3.525, 6.276
+		humming = getHummingDistance(ahash, $2d2a17a7, $26222a2a)
+		if(humming >=20) :return FALSE
+		getDifferenceHash ahash, SHOT_BUFFER_ID, 21.86, 62.76, 3.878, 1.883
+		humming = getHummingDistance(ahash, $94d07268, $2d656476)
+		if(humming >=20) :return FALSE
+	return TRUE
 #global

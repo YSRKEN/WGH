@@ -18,4 +18,17 @@
 		mi = gettime(5)
 		ss = gettime(6)
 	return strf("%02d:%02d:%02d", hh, mi, ss)
+	// ビットカウント
+	#defcfunc popcnt int x_
+		x = x_ - ((x_ >> 1) & $55555555)
+		x = (x & $33333333) + ((x >> 2) & $33333333)
+		x = (x + (x >> 4)) & $0f0f0f0f
+		x = x + (x >> 8)
+		x = x + (x >> 16)
+	return x & $3f
+	// ハミング距離を計算する
+	#defcfunc getHummingDistance array data1_, int data2_0_, int data2_1_
+		xor_1 = data1_(0) ^ data2_0_
+		xor_2 = data1_(1) ^ data2_1_
+	return popcnt(xor_1) + popcnt(xor_2)
 #global

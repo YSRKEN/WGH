@@ -1,6 +1,9 @@
 /* 画像処理関係 */
 #module Graphic
 	#const TEMP_A2D_BUFFER_ID 0
+	#const DHASH_SIZE  2	//Difference Hashは64bit＝32bit×2(DHASH_SIZE)で表現
+	#const DHASH_HEIGHT 8	//Difference HashはDHASH_WIDTH×DHASH_HEIGHTピクセル
+	#const DHASH_WIDTH  9	//に縮小した後に符号化する
 	// PNG形式で保存する
 	#deffunc pngsave str filename_
 		// 転送前の画像についての情報を取得する
@@ -142,4 +145,33 @@
 		rgb_g = (rgb_ >> 8) & $FF
 		rgb_b = rgb_ & $FF
 	return strf("%d,%d,%d", rgb_r, rgb_g, rgb_b)
+	// DifferenceHashを取得する
+	#deffunc getDifferenceHash array ahash_, int buffer_id_, double px_, double py_, double wx_, double wy_
+		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
+		px = int(px_ * window_wx@GetPic / 100)
+		py = int(py_ * window_wy@GetPic / 100)
+		wx = int(wx_ * window_wx@GetPic / 100)
+		wy = int(wy_ * window_wy@GetPic / 100)
+		// トリミング・リサイズ処理を行う
+		buffer TEMP_BUFFER_ID, DHASH_WIDTH, DHASH_HEIGHT
+		gzoom DHASH_WIDTH, DHASH_HEIGHT, buffer_id_, px, py, wx, wy, 1
+		// 画像をモノクロ化する
+		ddim mono, DHASH_WIDTH, DHASH_HEIGHT
+		for y, 0, DHASH_HEIGHT
+			for x, 0, DHASH_WIDTH
+				pget x, y
+				mono(x, y) = 0.299 * ginfo_r + 0.587 * ginfo_g + 0.114 * ginfo_b
+			next
+		next
+		// 隣接ピクセルとの比較結果を符号化する
+		dim ahash_, DHASH_SIZE
+		for k, 0, DHASH_SIZE
+			for y, k * 4, (k + 1) * 4
+				for x, 0, DHASH_WIDTH - 1
+					ahash_(k) = ahash_(k) << 1
+					if(mono(x, y) > mono(x + 1, y)) :ahash_(k) |= 1
+				next
+			next
+		next
+	return
 #global
