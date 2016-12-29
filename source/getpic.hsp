@@ -142,4 +142,8 @@
 		// ƒtƒ‰ƒOˆ—
 		getpos_flg@Config = TRUE
 	return TRUE
+	// ‰“ª‰æ–Ê‚©‚ğ”»’è‚·‚é
+	#defcfunc isExpeditionScene
+		
+	return FALSE
 #global

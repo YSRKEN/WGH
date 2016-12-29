@@ -39,6 +39,10 @@ repeat
 				addMessage "エラー：ズレ修正に失敗しました."
 			}
 		}
+		// 遠征タイマー認識
+		if(isExpeditionScene()){
+			addMessage "遠征画面"
+		}
 	}
 	// 時間待ち(5fps)
 	await 200
