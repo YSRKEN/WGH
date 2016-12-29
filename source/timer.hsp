@@ -1,0 +1,29 @@
+/* 各種タイマー関係 */
+#module Timer
+	#const EXP_LIST_HEIGHT 4	//遠征画面のリストの縦の長さ
+	// コンストラクタ
+	#deffunc initTimer
+		// 「艦隊派遣」ボタンの位置および大きさ
+		can_exp_button_px.0 = 81.43,81.43,81.43,81.43
+		can_exp_button_py.0 = 8.996,29.92,50.63,71.55
+		can_exp_button_wx.0 = 11.16,11.16,11.16,11.16
+		can_exp_button_wy.0 = 5.230,5.230,5.230,5.230
+	return
+	// 遠征タイマーを取得
+	#deffunc getExpeditionTimer
+		// どの位置に遠征アイコンが立っているかを検出する
+		dim exp_flg, EXP_LIST_HEIGHT
+		for ei, 0, EXP_LIST_HEIGHT
+			getDifferenceHash ahash, SHOT_BUFFER_ID, can_exp_button_px(ei), can_exp_button_py(ei), can_exp_button_wx(ei), can_exp_button_wy(ei)
+			// 「艦隊派遣」ボタンが出ていれば、そこでは遠征されていない
+			if(getHummingDistance(ahash, $a65452d5, $d8545548) >= 20){
+				exp_flg(ei) = TRUE
+			}else{
+				exp_flg(ei) = FALSE
+			}
+		next
+		logmes "" + exp_flg(0) + "," + exp_flg(1) + "," + exp_flg(2) + "," + exp_flg(3)
+		// 立っている遠征について、遠征時間を計測する
+		
+	return
+#global

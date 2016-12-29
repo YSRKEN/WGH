@@ -31,4 +31,7 @@
 		xor_1 = data1_(0) ^ data2_0_
 		xor_2 = data1_(1) ^ data2_1_
 	return popcnt(xor_1) + popcnt(xor_2)
+	// ハッシュ値を文字列化する
+	#defcfunc hashToStr array data_
+	return strf("%08x,%08x", data_(0), data_(1))
 #global
