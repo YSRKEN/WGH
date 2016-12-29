@@ -61,6 +61,7 @@
 			objsize POS_X(3) - OBJ_X - OBJ_Y - OBJ_SPACE * 4, OBJ_Y
 			chkbox "Twitter用に保存", twitter_flg@Config
 			chkbox_twitter_id = stat
+			chkbox_twitter_hwnd = objinfo_hwnd(chkbox_twitter_id)
 		pos POS_X(3) - OBJ_Y - OBJ_SPACE, POS_Y(1)
 			objsize OBJ_Y, OBJ_Y
 			button gosub "開", *openPictureFloder
@@ -71,6 +72,7 @@
 			sdim log_message, 32768
 			mesbox log_message, SIZE_X(3), SIZE_Y(3), 4
 			mesbox_log_id = stat
+			mesbox_log_hwnd = objinfo_hwnd(mesbox_log_id)
 
 		exit_flg = FALSE
 	return
@@ -81,7 +83,7 @@
 		// 追記した内容を画面に反映し、ついでにスクロールを掛ける
 		gsel MAIN_WINDOW_ID, 2
 		objprm mesbox_log_id, log_message
-		sendmsg objinfo(mesbox_log_id, 2), EM_SCROLL, SB_BOTTOM, 0
+		sendmsg mesbox_log_hwnd, EM_SCROLL, SB_BOTTOM, 0
 	return
 	// カレントウィンドウをメイン画面に戻す
 	// これ噛まさないとsendmsg周りで強制落ちするとかふざけんなボケ
@@ -174,9 +176,10 @@
 	}
 	return
 *action_object
-	if(lparam == objinfo(chkbox_twitter_id, 2)){
+	if(lparam == chkbox_twitter_hwnd){
 		// 「Twitter用に保存」チェックボックスのチェック状態を表示
 		// chkbox命令にチェック状態が反映される前なので、sendmsg命令を活用する
+		gsel MAIN_WINDOW_ID
 		sendmsg lparam, BM_GETCHECK, 0, 0
 		if(stat){
 			addMessage "Twitter用に保存：ON"
