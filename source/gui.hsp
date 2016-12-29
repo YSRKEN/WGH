@@ -3,7 +3,8 @@
 	// ウィンドウID
 	#const MAIN_WINDOW_ID   0	// メイン画面
 	#const OPTION_WINDOW_ID 1	// オプション画面
-	#const WINDOW_ID_MAX OPTION_WINDOW_ID
+	#const TIMER_WINDOW_ID  2	// 各種タイマー画面
+	#const WINDOW_ID_MAX TIMER_WINDOW_ID
 	// オブジェクトサイズ
 	#const OBJ_X 64
 	#const OBJ_Y 24
@@ -23,7 +24,7 @@
 	#const BM_GETCHECK $F0
 	// GUIを初期化
 	#deffunc initGUI
-		dim hwnd_window, WINDOW_ID_MAX
+		dim hwnd_window, WINDOW_ID_MAX + 1
 
 		// オプション画面
 		// ウィンドウを設置
@@ -39,6 +40,13 @@
 		pos OBJ_SPACE * 2 + FONT_SIZE * 10 + OBJ_Y, POS_Y(0)
 			objsize OBJ_X - OBJ_SPACE, OBJ_Y
 			button gosub "選択...", *selectBgColor
+
+		// 各種タイマー画面
+		// ウィンドウを設置
+		screen TIMER_WINDOW_ID, POS_X(3), POS_Y(3)
+		hwnd_window(TIMER_WINDOW_ID) = hwnd
+		title "各種タイマー"
+		gsel TIMER_WINDOW_ID, -1
 
 		// メイン画面
 		// ウィンドウを設置
@@ -67,7 +75,10 @@
 			button gosub "開", *openPictureFloder
 		pos POS_X(0), POS_Y(2)
 			objsize OBJ_X, OBJ_Y
-			button gosub "オプション...", *showOptionWindow
+			button gosub "オプション", *showOptionWindow
+		pos POS_X(1), POS_Y(2)
+			objsize OBJ_X, OBJ_Y
+			button gosub "タイマー", *showTimerWindow
 		pos POS_X(0), POS_Y(3)
 			sdim log_message, 32768
 			mesbox log_message, SIZE_X(3), SIZE_Y(3), 4
@@ -150,6 +161,12 @@
 *showOptionWindow
 	// オプション画面を表示する処理
 	gsel OPTION_WINDOW_ID, 2
+	resetCurrentWindow
+	return
+*showTimerWindow
+	// 各種タイマー画面を表示する処理
+	gsel TIMER_WINDOW_ID, 2
+	resetCurrentWindow
 	return
 *selectBgColor
 	dialog "", 33
