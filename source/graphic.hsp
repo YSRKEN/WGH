@@ -174,4 +174,17 @@
 			next
 		next
 	return
+	// タイマーがどの数字かを判定する
+	#defcfunc judgeTimerNumber array ahash_
+		if(getHummingDistance(ahash_, $03983c36, $3c3c1889) < 20) :return 0
+		if(getHummingDistance(ahash_, $03838303, $6333e393) < 20) :return 1
+		if(getHummingDistance(ahash_, $0f71f9f9, $f3471c39) < 20) :return 2
+		if(getHummingDistance(ahash_, $0f31f9c3, $83b16871) < 20) :return 3
+		if(getHummingDistance(ahash_, $e3c38919, $31695191) < 20) :return 4
+		if(getHummingDistance(ahash_, $11383733, $b8cc7033) < 20) :return 5
+		if(getHummingDistance(ahash_, $c31c3827, $39343c19) < 20) :return 6
+		if(getHummingDistance(ahash_, $6d71e3e6, $cecd0c8d) < 20) :return 7
+		if(getHummingDistance(ahash_, $8b38388d, $11303419) < 20) :return 8
+		if(getHummingDistance(ahash_, $87393030, $388cf833) < 20) :return 9
+	return -1
 #global

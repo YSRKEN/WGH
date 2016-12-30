@@ -1,20 +1,27 @@
 /* 各種タイマー関係 */
 #module Timer
 	#const EXP_LIST_HEIGHT 4	//遠征画面のリストの縦の長さ
+	#const TIMER_DIGIT_COUNT 6	//タイマーの数字の数
 	// コンストラクタ
 	#deffunc initTimer
 		// 「艦隊派遣」ボタンの位置および大きさ
-		can_exp_button_px.0 = 81.43,81.43,81.43,81.43
+		can_exp_button_px = 81.43
 		can_exp_button_py.0 = 8.996,29.92,50.63,71.55
-		can_exp_button_wx.0 = 11.16,11.16,11.16,11.16
-		can_exp_button_wy.0 = 5.230,5.230,5.230,5.230
+		can_exp_button_wx = 11.16
+		can_exp_button_wy = 5.230
+		// 遠征時間表示の位置および大きさ
+		exp_timer_px.0 = 60.75,62.63,65.33,67.10,69.80,71.56
+		exp_timer_py.0 = 5.858,26.57,47.49,68.41
+		exp_timer_wx = 1.645
+		exp_timer_wy = 4.184
 	return
 	// 遠征タイマーを取得
 	#deffunc getExpeditionTimer
+		gsel SHOT_BUFFER_ID
 		// どの位置に遠征アイコンが立っているかを検出する
 		dim exp_flg, EXP_LIST_HEIGHT
 		for ei, 0, EXP_LIST_HEIGHT
-			getDifferenceHash ahash, SHOT_BUFFER_ID, can_exp_button_px(ei), can_exp_button_py(ei), can_exp_button_wx(ei), can_exp_button_wy(ei)
+			getDifferenceHash ahash, SHOT_BUFFER_ID, can_exp_button_px, can_exp_button_py(ei), can_exp_button_wx, can_exp_button_wy
 			// 「艦隊派遣」ボタンが出ていれば、そこでは遠征されていない
 			if(getHummingDistance(ahash, $a65452d5, $d8545548) >= 20){
 				exp_flg(ei) = TRUE
@@ -22,8 +29,16 @@
 				exp_flg(ei) = FALSE
 			}
 		next
-		logmes "" + exp_flg(0) + "," + exp_flg(1) + "," + exp_flg(2) + "," + exp_flg(3)
 		// 立っている遠征について、遠征時間を計測する
-		
+		sdim output_timer, 1024
+		for ei, 0, EXP_LIST_HEIGHT
+			output_timer += "[" + ei + "] "
+			for ti, 0, TIMER_DIGIT_COUNT
+				getDifferenceHash ahash, SHOT_BUFFER_ID, exp_timer_px(ti), exp_timer_py(ei), exp_timer_wx, exp_timer_wy
+				output_timer += "" + judgeTimerNumber(ahash) + ","
+			next
+			output_timer += "\n"
+		next
+		logmes output_timer
 	return
 #global
