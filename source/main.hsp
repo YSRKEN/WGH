@@ -6,6 +6,7 @@
 #include "const.hsp"
 #include "utility.hsp"
 #include "config.hsp"
+#include "date.hsp"
 #include "graphic.hsp"
 #include "getpic.hsp"
 #include "gui.hsp"
@@ -15,6 +16,7 @@
 
 // ‰Šú‰»ƒ‹[ƒ`ƒ“
 initConfig
+initDate
 initGraphic
 initGetPic
 initGUI

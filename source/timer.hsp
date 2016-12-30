@@ -18,6 +18,12 @@
 		// 保持する時間表記
 		ddim exp_timer, FLEET_SIZE
 	return
+	// 時間データを修正
+	#deffunc fixTime array timer_digit_
+		timer_digit_(0) = limit(timer_digit_(0), 0, 1)
+		timer_digit_(2) = limit(timer_digit_(2), 0, 5)
+		timer_digit_(4) = limit(timer_digit_(4), 0, 5)
+	return
 	// 遠征タイマーを取得
 	#deffunc getExpeditionTimer
 		gsel SHOT_BUFFER_ID
@@ -34,13 +40,16 @@
 			}
 		next
 		// 立っている遠征について、遠征時間を計測する
+		now_time = getFloatTime()
 		sdim output_timer, 1024
 		for ei, 0, EXP_LIST_HEIGHT
-			if(exp_flg(ei) == FALSE) :_continue
+			if(exp_flg(ei) == FALSE) :exp_timer(ei) = -1.0 :_continue
 			dim timer_digit, TIMER_DIGIT_COUNT
 			getTimerOCR timer_digit, SHOT_BUFFER_ID, exp_timer_px, exp_timer_py(ei), exp_timer_wx, exp_timer_wy, 140, TRUE
+			fixTime timer_digit
+			exp_timer(ei) = now_time + cnvFloatSec(timer_digit(0) * 10 + timer_digit(1), timer_digit(2) * 10 + timer_digit(3), timer_digit(4) * 10 + timer_digit(5))
 			output_timer += "[" + ei + "] "
-			output_timer += strf("%d%d:%d%d:%d%d", timer_digit(0), timer_digit(1), timer_digit(2), timer_digit(3), timer_digit(4), timer_digit(5))
+			output_timer += "" + cnvStrDate(exp_timer(ei)) + " " + cnvStrTime(exp_timer(ei) - now_time)
 			output_timer += "\n"
 		next
 		logmes output_timer
