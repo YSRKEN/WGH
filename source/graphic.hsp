@@ -4,6 +4,9 @@
 	#const DHASH_SIZE  2	//Difference Hashは64bit＝32bit×2(DHASH_SIZE)で表現
 	#const DHASH_HEIGHT 8	//Difference HashはDHASH_WIDTH×DHASH_HEIGHTピクセル
 	#const DHASH_WIDTH  9	//に縮小した後に符号化する
+	#const AHASH_SIZE  2	//Average Hashは64bit＝32bit×2(AHASH_SIZE)で表現
+	#const AHASH_HEIGHT 8	//Average HashはAHASH_WIDTH×AHASH_HEIGHTピクセル
+	#const AHASH_WIDTH  8	//に縮小した後に符号化する
 	// PNG形式で保存する
 	#deffunc pngsave str filename_
 		// 転送前の画像についての情報を取得する
@@ -146,7 +149,7 @@
 		rgb_b = rgb_ & $FF
 	return strf("%d,%d,%d", rgb_r, rgb_g, rgb_b)
 	// DifferenceHashを取得する
-	#deffunc getDifferenceHash array ahash_, int buffer_id_, double px_, double py_, double wx_, double wy_
+	#deffunc getDifferenceHash array dhash_, int buffer_id_, double px_, double py_, double wx_, double wy_
 		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
 		px = int(px_ * window_wx@GetPic / 100)
 		py = int(py_ * window_wy@GetPic / 100)
@@ -164,27 +167,64 @@
 			next
 		next
 		// 隣接ピクセルとの比較結果を符号化する
-		dim ahash_, DHASH_SIZE
+		dim dhash_, DHASH_SIZE
 		for k, 0, DHASH_SIZE
 			for y, k * 4, (k + 1) * 4
 				for x, 0, DHASH_WIDTH - 1
+					dhash_(k) = dhash_(k) << 1
+					if(mono(x, y) > mono(x + 1, y)) :dhash_(k) |= 1
+				next
+			next
+		next
+	return
+	// DifferenceHashを取得する
+	#deffunc getAverageeHash array ahash_, int buffer_id_, double px_, double py_, double wx_, double wy_
+		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
+		px = int(px_ * window_wx@GetPic / 100)
+		py = int(py_ * window_wy@GetPic / 100)
+		wx = int(wx_ * window_wx@GetPic / 100)
+		wy = int(wy_ * window_wy@GetPic / 100)
+		// トリミング・リサイズ処理を行う
+		buffer TEMP_BUFFER_ID, AHASH_WIDTH, AHASH_HEIGHT
+		gzoom AHASH_WIDTH, AHASH_HEIGHT, buffer_id_, px, py, wx, wy, 1
+		// 画像をモノクロ化する
+		ddim mono, AHASH_WIDTH, AHASH_HEIGHT
+		for y, 0, AHASH_HEIGHT
+			for x, 0, AHASH_WIDTH
+				pget x, y
+				mono(x, y) = 0.299 * ginfo_r + 0.587 * ginfo_g + 0.114 * ginfo_b
+			next
+		next
+		// 画素値の平均値を取得する
+		sum = 0.0
+		for y, 0, AHASH_HEIGHT
+			for x, 0, AHASH_WIDTH
+				sum += mono(x, y)
+			next
+		next
+		average_lum = sum / AHASH_WIDTH / AHASH_HEIGHT
+		// 平均値より明るいか暗いかで符号化する
+		dim ahash_, AHASH_SIZE
+		for k, 0, AHASH_SIZE
+			for y, k * 4, (k + 1) * 4
+				for x, 0, AHASH_WIDTH - 1
 					ahash_(k) = ahash_(k) << 1
-					if(mono(x, y) > mono(x + 1, y)) :ahash_(k) |= 1
+					if(mono(x, y) > average_lum) :ahash_(k) |= 1
 				next
 			next
 		next
 	return
 	// タイマーがどの数字かを判定する
 	#defcfunc judgeTimerNumber array ahash_
-		if(getHummingDistance(ahash_, $03983c36, $3c3c1889) < 20) :return 0
-		if(getHummingDistance(ahash_, $03838303, $6333e393) < 20) :return 1
-		if(getHummingDistance(ahash_, $0f71f9f9, $f3471c39) < 20) :return 2
-		if(getHummingDistance(ahash_, $0f31f9c3, $83b16871) < 20) :return 3
-		if(getHummingDistance(ahash_, $e3c38919, $31695191) < 20) :return 4
-		if(getHummingDistance(ahash_, $11383733, $b8cc7033) < 20) :return 5
+		if(getHummingDistance(ahash_, $01e65830, $060c0c0f) < 20) :return 0	//
+		if(getHummingDistance(ahash_, $03c18306, $00c1833f) < 20) :return 1	//
+		if(getHummingDistance(ahash_, $03ecc081, $00618e3f) < 20) :return 2	//
+		if(getHummingDistance(ahash_, $07ec408f, $01e040bf) < 20) :return 3	//
+		if(getHummingDistance(ahash_, $00e3cdb3, $0c7fc183) < 20) :return 4	//
+		if(getHummingDistance(ahash_, $07ec183f, $002040bf) < 20) :return 5
 		if(getHummingDistance(ahash_, $c31c3827, $39343c19) < 20) :return 6
-		if(getHummingDistance(ahash_, $6d71e3e6, $cecd0c8d) < 20) :return 7
-		if(getHummingDistance(ahash_, $8b38388d, $11303419) < 20) :return 8
+		if(getHummingDistance(ahash_, $07e04183, $00c1870e) < 20) :return 7	//
+		if(getHummingDistance(ahash_, $01ccd0bb, $03c870b3) < 20) :return 8	//
 		if(getHummingDistance(ahash_, $87393030, $388cf833) < 20) :return 9
 	return -1
 #global

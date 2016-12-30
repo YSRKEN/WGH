@@ -18,6 +18,7 @@
 	// 遠征タイマーを取得
 	#deffunc getExpeditionTimer
 		gsel SHOT_BUFFER_ID
+		bmpsave "hoge.bmp"
 		// どの位置に遠征アイコンが立っているかを検出する
 		dim exp_flg, EXP_LIST_HEIGHT
 		for ei, 0, EXP_LIST_HEIGHT
@@ -34,7 +35,8 @@
 		for ei, 0, EXP_LIST_HEIGHT
 			output_timer += "[" + ei + "] "
 			for ti, 0, TIMER_DIGIT_COUNT
-				getDifferenceHash ahash, SHOT_BUFFER_ID, exp_timer_px(ti), exp_timer_py(ei), exp_timer_wx, exp_timer_wy
+				getAverageeHash ahash, SHOT_BUFFER_ID, exp_timer_px(ti), exp_timer_py(ei), exp_timer_wx, exp_timer_wy
+				output_timer += "" + hashToStr(ahash) + ","
 				output_timer += "" + judgeTimerNumber(ahash) + ","
 			next
 			output_timer += "\n"

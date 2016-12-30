@@ -141,7 +141,8 @@
 	return
 *showInfo
 	// ソフト情報を表示する処理
-	dialog "ソフト名：" + SOFT_NAME + "\nバージョン：" + SOFT_VER + "\n最終更新日：" + SOFT_TIME + "\n作者：YSR"
+	getExpeditionTimer
+;	dialog "ソフト名：" + SOFT_NAME + "\nバージョン：" + SOFT_VER + "\n最終更新日：" + SOFT_TIME + "\n作者：YSR"
 	return
 *savePicture
 	// スクショを保存する処理
