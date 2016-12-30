@@ -1,4 +1,5 @@
 // 外部ライブラリ
+#include "hspcv.as"
 #include "hspinet.as"
 #include "a2d.hsp"
 // 自前ライブラリ
@@ -14,6 +15,7 @@
 
 // 初期化ルーチン
 initConfig
+initGraphic
 initGetPic
 initGUI
 initTimer
@@ -42,10 +44,10 @@ repeat
 			}
 		}
 		// 遠征タイマー認識
-	//	if(isExpeditionScene()){
-	//		addMessage "遠征画面..."
-	//		getExpeditionTimer
-	//	}
+		if(isExpeditionScene()){
+			addMessage "遠征画面..."
+			getExpeditionTimer
+		}
 	}
 	// 時間待ち(5fps)
 	await 200

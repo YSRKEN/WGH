@@ -17,7 +17,6 @@
 	#const SM_CXVIRTUALSCREEN 0x0000004E
 	#const SM_CYVIRTUALSCREEN 0x0000004F
 	// API関係ではない定数
-	#const RECT_SIZE 4
 	#const VIRTUAL_SCREEN_ID     10	//仮想画面全体のスクショ
 	#const CLICK_SCREEN_ID       11	//座標取得時にクリックする画面
 	#const global SHOT_BUFFER_ID 12	//スクショ用バッファ

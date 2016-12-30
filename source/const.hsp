@@ -8,6 +8,9 @@
 #const global FALSE 0
 // テンポラリバッファのウィンドウID
 #const global TEMP_BUFFER_ID 99
+#const global TEMP_BUFFER_ID2 100
+// RECT
+#const global RECT_SIZE 4
 
 #packopt name SOFT_NAME
 

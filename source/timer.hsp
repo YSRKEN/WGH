@@ -1,7 +1,8 @@
 /* 各種タイマー関係 */
 #module Timer
 	#const EXP_LIST_HEIGHT 4	//遠征画面のリストの縦の長さ
-	#const TIMER_DIGIT_COUNT 6	//タイマーの数字の数
+	#const TIMER_DIGIT_COUNT 6	//タイマーの数字の数(桁)
+	#const FLEET_SIZE 4			//艦隊数
 	// コンストラクタ
 	#deffunc initTimer
 		// 「艦隊派遣」ボタンの位置および大きさ
@@ -10,15 +11,17 @@
 		can_exp_button_wx = 11.16
 		can_exp_button_wy = 5.230
 		// 遠征時間表示の位置および大きさ
-		exp_timer_px.0 = 60.75,62.63,65.33,67.10,69.80,71.56
+		exp_timer_px.0 = 60.89,62.63,65.45,67.10,69.80,71.56
 		exp_timer_py.0 = 5.858,26.57,47.49,68.41
 		exp_timer_wx = 1.645
 		exp_timer_wy = 4.184
+		// 保持する時間表記
+		ddim exp_timer, FLEET_SIZE
 	return
 	// 遠征タイマーを取得
 	#deffunc getExpeditionTimer
 		gsel SHOT_BUFFER_ID
-		bmpsave "hoge.bmp"
+		;bmpsave "hoge.bmp"
 		// どの位置に遠征アイコンが立っているかを検出する
 		dim exp_flg, EXP_LIST_HEIGHT
 		for ei, 0, EXP_LIST_HEIGHT
@@ -33,12 +36,11 @@
 		// 立っている遠征について、遠征時間を計測する
 		sdim output_timer, 1024
 		for ei, 0, EXP_LIST_HEIGHT
+			if(exp_flg(ei) == FALSE) :_continue
+			dim timer_digit, TIMER_DIGIT_COUNT
+			getTimerOCR timer_digit, SHOT_BUFFER_ID, exp_timer_px, exp_timer_py(ei), exp_timer_wx, exp_timer_wy, 140, TRUE
 			output_timer += "[" + ei + "] "
-			for ti, 0, TIMER_DIGIT_COUNT
-				getAverageeHash ahash, SHOT_BUFFER_ID, exp_timer_px(ti), exp_timer_py(ei), exp_timer_wx, exp_timer_wy
-				output_timer += "" + hashToStr(ahash) + ","
-				output_timer += "" + judgeTimerNumber(ahash) + ","
-			next
+			output_timer += strf("%d%d:%d%d:%d%d", timer_digit(0), timer_digit(1), timer_digit(2), timer_digit(3), timer_digit(4), timer_digit(5))
 			output_timer += "\n"
 		next
 		logmes output_timer

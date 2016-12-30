@@ -1,12 +1,47 @@
 /* 画像処理関係 */
 #module Graphic
 	#const TEMP_A2D_BUFFER_ID 0
+	#const TEMP_OCV_BUFFER_ID 0
 	#const DHASH_SIZE  2	//Difference Hashは64bit＝32bit×2(DHASH_SIZE)で表現
 	#const DHASH_HEIGHT 8	//Difference HashはDHASH_WIDTH×DHASH_HEIGHTピクセル
 	#const DHASH_WIDTH  9	//に縮小した後に符号化する
 	#const AHASH_SIZE  2	//Average Hashは64bit＝32bit×2(AHASH_SIZE)で表現
 	#const AHASH_HEIGHT 8	//Average HashはAHASH_WIDTH×AHASH_HEIGHTピクセル
 	#const AHASH_WIDTH  8	//に縮小した後に符号化する
+	#const OCR_HEIGHT 32	//OCR処理はOCR_WIDTH×OCR_HEIGHTピクセル
+	#const OCR_WIDTH  32	//に縮小した後にマッチングさせる
+	#const OCR_TEMP_ID 20
+	#const OCR_MAP_ID  21
+	#const OCR_TEMP_BLOCK_SIZE 36
+	#const OCR_DIGITS 10
+	#const OCR_A2D_MAP_ID 5
+	// コンストラクタ
+	#deffunc initGraphic
+		//「源暎ゴシックM SemiBold」(作：おもたん氏)で出力した画像を使用
+		buffer OCR_TEMP_ID, OCR_TEMP_BLOCK_SIZE * OCR_DIGITS, OCR_TEMP_BLOCK_SIZE
+		picload exe_path@ + "\\template.png"
+		buffer OCR_MAP_ID, (OCR_WIDTH + 2) * (OCR_DIGITS * 2 - 1), OCR_HEIGHT + 2
+		for di, 0, OCR_DIGITS
+			// 赤背景
+			gsel OCR_MAP_ID
+			color 255, 0, 0
+			boxf (OCR_WIDTH + 2) * di * 2, 0, (OCR_WIDTH + 2) * (di * 2 + 1) - 1, OCR_HEIGHT + 1
+			// 文字表示
+			gsel OCR_TEMP_ID
+			before_rect.0 = OCR_TEMP_BLOCK_SIZE * di, 0, OCR_TEMP_BLOCK_SIZE * (di + 1) - 1, OCR_TEMP_BLOCK_SIZE - 1
+			dim after_rect, RECT_SIZE
+			color $FF, $FF, $FF :getSquare before_rect, after_rect
+			wx2 = after_rect(2) - after_rect(0) + 1
+			wy2 = after_rect(3) - after_rect(1) + 1
+			gsel OCR_MAP_ID
+			pos (OCR_WIDTH + 2) * di * 2 + 1, 1
+			gzoom OCR_WIDTH, OCR_HEIGHT, OCR_TEMP_ID, after_rect(0), after_rect(1), wx2, wy2, 1
+		next
+		gsel OCR_MAP_ID
+		cvbuffer OCR_A2D_MAP_ID, ginfo_sx, ginfo_sy
+		cvputimg OCR_A2D_MAP_ID
+		;cvsave "match.png", OCR_A2D_MAP_ID
+	return
 	// PNG形式で保存する
 	#deffunc pngsave str filename_
 		// 転送前の画像についての情報を取得する
@@ -41,48 +76,47 @@
 		x_max = input_rect_(2)
 		y_max = input_rect_(3)
 		;検索する(上・左・下・右の順)
-		for x, x_min, x_max
+		for x, x_min, x_max + 1
 			flg = FALSE
-			for y, y_min, y_max
+			for y, y_min, y_max + 1
 				pget x, y
-				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+				if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :flg = TRUE :_break
 			next
 			if(flg) :output_rect_(0) = x :_break
 		next
-		for y, y_min, y_max
+		for y, y_min, y_max + 1
 			flg = FALSE
-			for x, x_min, x_max
+			for x, x_min, x_max + 1
 				pget x, y
-				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+				if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :flg = TRUE :_break
 			next
 			if(flg) :output_rect_(1) = y :_break
 		next
-		for x, x_max - 1, x_min - 1, -1
+		for x, x_max, x_min - 1, -1
 			flg = FALSE
-			for y, y_min, y_max
+			for y, y_min, y_max + 1
 				pget x, y
-				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+				if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :flg = TRUE :_break
 			next
 			if(flg) :output_rect_(2) = x :_break
 		next
-		for y, y_max - 1, y_min - 1, -1
+		for y, y_max, y_min - 1, -1
 			flg = FALSE
-			for x, x_min, x_max
+			for x, x_min, x_max + 1
 				pget x, y
-				if((ginfo_r != rr) || (ginfo_g != gg) || (ginfo_b != bb)) :flg = TRUE :_break
+				if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :flg = TRUE :_break
 			next
 			if(flg) :output_rect_(3) = y :_break
 		next
 	return
-	/* 画像をカレントカラーで切り抜く(内部から展開する版)
-	 * まず、元のスクリーンに対し、次の3種が存在する。
-	 * ・input_rect(外枠)
-	 * ・output_rect(抜き出したい内枠)
-	 * ・cx, cy(クリック座標)
-	 * これに対して、内側からサーチすることで、output_rectを算出する
-	 * virtual_flgがTRUEだと、virtual_screen_px@GetPicとvirtual_screen_py@GetPicを
-	 * 考慮してズラして算出してくれる(getWindowPositionByClick用)
-	 */
+	// 画像をカレントカラーで切り抜く(内部から展開する版)
+	// まず、元のスクリーンに対し、次の3種が存在する。
+	// ・input_rect(外枠)
+	// ・output_rect(抜き出したい内枠)
+	// ・cx, cy(クリック座標)
+	// これに対して、内側からサーチすることで、output_rectを算出する
+	// virtual_flgがTRUEだと、virtual_screen_px@GetPicとvirtual_screen_py@GetPicを
+	// 考慮してズラして算出してくれる(getWindowPositionByClick用)
 	#deffunc getSquareInner array input_rect_, array output_rect_, int cx_, int cy_, int virtual_flg_
 		;カレントカラーを記憶しておく
 		cr = ginfo_r
@@ -227,4 +261,47 @@
 		if(getHummingDistance(ahash_, $01ccd0bb, $03c870b3) < 20) :return 8	//
 		if(getHummingDistance(ahash_, $87393030, $388cf833) < 20) :return 9
 	return -1
+	// 数字認識用関数
+	#defcfunc getNumber int buffer_id_, double px_, double py_, double wx_, double wy_, int threshold_, int nega_flg_
+		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
+		px = int(px_ * window_wx@GetPic / 100)
+		py = int(py_ * window_wy@GetPic / 100)
+		wx = int(wx_ * window_wx@GetPic / 100)
+		wy = int(wy_ * window_wy@GetPic / 100)
+		// トリミング処理を行う
+		buffer TEMP_BUFFER_ID, wx, wy
+		gcopy buffer_id_, px, py, wx, wy
+		;bmpsave "hoge " + ei@Timer + " " + k@Graphic + "a.bmp"
+		// 二値化する
+		cvbuffer TEMP_OCV_BUFFER_ID, wx, wy
+		cvputimg TEMP_OCV_BUFFER_ID
+		cvconvert 0, TEMP_OCV_BUFFER_ID
+		if(nega_flg_) :cvxors ,,, TEMP_OCV_BUFFER_ID
+		;cvsave "hoge " + ei@Timer + " " + k@Graphic + "b.bmp", TEMP_OCV_BUFFER_ID
+		if(threshold_ >= 0){
+			cvthreshold CV_THRESH_BINARY, threshold_, 255, TEMP_OCV_BUFFER_ID
+		}else{
+			cvthreshold CV_THRESH_OTSU, threshold_, 255, TEMP_OCV_BUFFER_ID
+		}
+		// クロップした上で、マッチングのためOCR_WIDTH×OCR_HEIGHTピクセルに変形
+		cvgetimg TEMP_OCV_BUFFER_ID
+		before_rect.0 = 0, 0, wx - 1, wy - 1
+		dim after_rect, RECT_SIZE
+		color $FF, $FF, $FF :getSquare before_rect, after_rect
+		wx2 = after_rect(2) - after_rect(0) + 1
+		wy2 = after_rect(3) - after_rect(1) + 1
+		buffer TEMP_BUFFER_ID2, OCR_WIDTH + 2, OCR_HEIGHT + 2
+		color 255, 0, 0 :boxf :pos 1,1 :gzoom OCR_WIDTH, OCR_HEIGHT, TEMP_BUFFER_ID, after_rect(0), after_rect(1), wx2, wy2, 1
+		;bmpsave "hoge " + ei@Timer + " " + k@Graphic + "c.bmp"
+		// マッチング処理
+		cvbuffer TEMP_OCV_BUFFER_ID, OCR_WIDTH + 2, OCR_HEIGHT + 2
+		cvputimg TEMP_OCV_BUFFER_ID
+		cvmatch match_x, match_y, CV_TM_SQDIFF, TEMP_OCV_BUFFER_ID, OCR_A2D_MAP_ID
+	return limit(int(1.0 * match_x / (OCR_WIDTH + 2) / 2 + 0.5), 0, 9)
+	// ある長さの数字列を認識する
+	#deffunc getTimerOCR array timer_digit_, int buffer_id_, array px_arr_, double py_, double wx_, double wy_, int threshold_, int nega_flg_
+		for k, 0, length(timer_digit_)
+			timer_digit_(k) = getNumber(buffer_id_, px_arr_(k), py_, wx_, wy_, threshold_, nega_flg_)
+		next
+	return
 #global
