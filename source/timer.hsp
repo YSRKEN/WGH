@@ -1,21 +1,21 @@
-/* å„ç¨®ã‚¿ã‚¤ãƒãƒ¼é–¢ä¿‚ */
+/* Šeíƒ^ƒCƒ}[ŠÖŒW */
 #module Timer
-	#const EXP_LIST_HEIGHT 4	//é å¾ç”»é¢ã®ãƒªã‚¹ãƒˆã®ç¸¦ã®é•·ã•
-	// ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	#const EXP_LIST_HEIGHT 4	//‰“ª‰æ–Ê‚ÌƒŠƒXƒg‚Ìc‚Ì’·‚³
+	// ƒRƒ“ƒXƒgƒ‰ƒNƒ^
 	#deffunc initTimer
-		// ã€Œè‰¦éšŠæ´¾é£ã€ãƒœã‚¿ãƒ³ã®ä½ç½®ãŠã‚ˆã³å¤§ãã•
+		// uŠÍ‘à”hŒ­vƒ{ƒ^ƒ“‚ÌˆÊ’u‚¨‚æ‚Ñ‘å‚«‚³
 		can_exp_button_px.0 = 81.43,81.43,81.43,81.43
 		can_exp_button_py.0 = 8.996,29.92,50.63,71.55
 		can_exp_button_wx.0 = 11.16,11.16,11.16,11.16
 		can_exp_button_wy.0 = 5.230,5.230,5.230,5.230
 	return
-	// é å¾ã‚¿ã‚¤ãƒãƒ¼ã‚’å–å¾—
+	// ‰“ªƒ^ƒCƒ}[‚ğæ“¾
 	#deffunc getExpeditionTimer
-		// ã©ã®ä½ç½®ã«é å¾ã‚¢ã‚¤ã‚³ãƒ³ãŒç«‹ã£ã¦ã„ã‚‹ã‹ã‚’æ¤œå‡ºã™ã‚‹
+		// ‚Ç‚ÌˆÊ’u‚É‰“ªƒAƒCƒRƒ“‚ª—§‚Á‚Ä‚¢‚é‚©‚ğŒŸo‚·‚é
 		dim exp_flg, EXP_LIST_HEIGHT
 		for ei, 0, EXP_LIST_HEIGHT
 			getDifferenceHash ahash, SHOT_BUFFER_ID, can_exp_button_px(ei), can_exp_button_py(ei), can_exp_button_wx(ei), can_exp_button_wy(ei)
-			// ã€Œè‰¦éšŠæ´¾é£ã€ãƒœã‚¿ãƒ³ãŒå‡ºã¦ã„ã‚Œã°ã€ãã“ã§ã¯é å¾ã•ã‚Œã¦ã„ãªã„
+			// uŠÍ‘à”hŒ­vƒ{ƒ^ƒ“‚ªo‚Ä‚¢‚ê‚ÎA‚»‚±‚Å‚Í‰“ª‚³‚ê‚Ä‚¢‚È‚¢
 			if(getHummingDistance(ahash, $a65452d5, $d8545548) >= 20){
 				exp_flg(ei) = TRUE
 			}else{
@@ -23,7 +23,7 @@
 			}
 		next
 		logmes "" + exp_flg(0) + "," + exp_flg(1) + "," + exp_flg(2) + "," + exp_flg(3)
-		// ç«‹ã£ã¦ã„ã‚‹é å¾ã«ã¤ã„ã¦ã€é å¾æ™‚é–“ã‚’è¨ˆæ¸¬ã™ã‚‹
+		// —§‚Á‚Ä‚¢‚é‰“ª‚É‚Â‚¢‚ÄA‰“ªŠÔ‚ğŒv‘ª‚·‚é
 		
 	return
 #global
