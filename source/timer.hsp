@@ -11,10 +11,10 @@
 		can_exp_button_wx = 11.16
 		can_exp_button_wy = 5.230
 		// 艦隊番号アイコンの位置および大きさ
-		exp_fleet_number_px = 0.0
-		exp_fleet_number_py.0 = 0.0, 0.0, 0.0, 0.0
-		exp_fleet_number_wx = 0.0
-		exp_fleet_number_wy = 0.0
+		exp_fleet_number_px = 86.37
+		exp_fleet_number_py.0 = 6.695, 27.41, 48.33, 69.25
+		exp_fleet_number_wx = 0.9401
+		exp_fleet_number_wy = 2.301
 		// 遠征時間表示の位置および大きさ
 		exp_timer_px.0 = 60.89,62.63,65.45,67.10,69.80,71.56
 		exp_timer_py.0 = 5.858,26.57,47.49,68.41
@@ -56,9 +56,10 @@
 			getTimerOCR timer_digit, SHOT_BUFFER_ID, exp_timer_px, exp_timer_py(ei), exp_timer_wx, exp_timer_wy, 140, TRUE
 			fixTime timer_digit
 			// 遠征艦隊番号
-			fleet_number = 0
-			;getDifferenceHash ahash, SHOT_BUFFER_ID, exp_fleet_number_px, exp_fleet_number_py(ei), exp_fleet_number_wx, exp_fleet_number_wy
-			;logmes hashToStr(ahash)
+			getDifferenceHash ahash, SHOT_BUFFER_ID, exp_fleet_number_px, exp_fleet_number_py(ei), exp_fleet_number_wx, exp_fleet_number_wy
+			fleet_number = judgeExpFleets(ahash)
+			;logmes "" + fleet_number + " " + hashToStr(ahash)
+			if(fleet_number < 0) :fleet_number = 0
 			// 読み込み処理
 			exp_timer(fleet_number) = now_time + cnvFloatSec(timer_digit(0) * 10 + timer_digit(1), timer_digit(2) * 10 + timer_digit(3), timer_digit(4) * 10 + timer_digit(5))
 		next

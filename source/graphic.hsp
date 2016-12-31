@@ -304,4 +304,11 @@
 			timer_digit_(k) = getNumber(buffer_id_, px_arr_(k), py_, wx_, wy_, threshold_, nega_flg_)
 		next
 	return
+	// ‰“ªŠÍ‘à”Ô†‚ğ”»’è‚·‚é
+	#defcfunc judgeExpFleets array ahash_
+		if(getHummingDistance(ahash_, $8c0c0e8e, $8e8e0f13) < 20) :return 0
+		if(getHummingDistance(ahash_, $8c0f63e3, $c78e1d37) < 20) :return 1
+		if(getHummingDistance(ahash_, $9c0f6387, $0e83630f) < 20) :return 2
+		if(getHummingDistance(ahash_, $66c78737, $67672787) < 20) :return 3
+	return -1
 #global
