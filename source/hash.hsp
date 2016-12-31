@@ -92,9 +92,19 @@
 	return
 	// ‰“ªŠÍ‘à”Ô†‚ğ”»’è‚·‚é
 	#defcfunc judgeExpFleets array ahash_
-		if(getHummingDistance(ahash_, $8c0c0e8e, $8e8e0f13) < 20) :return 0
-		if(getHummingDistance(ahash_, $8c0f63e3, $c78e1d37) < 20) :return 1
-		if(getHummingDistance(ahash_, $9c0f6387, $0e83630f) < 20) :return 2
-		if(getHummingDistance(ahash_, $66c78737, $67672787) < 20) :return 3
-	return -1
+		dim exp_fleets_distance, FLEET_SIZE
+		exp_fleets_distance(0) = getHummingDistance(ahash_, $8c0c0e8e, $8e8e0f13)
+		exp_fleets_distance(1) = getHummingDistance(ahash_, $8c0f63e3, $c78e1d37)
+		exp_fleets_distance(2) = getHummingDistance(ahash_, $9c0f6387, $0e83630f)
+		exp_fleets_distance(3) = getHummingDistance(ahash_, $66c78737, $67672787)
+		min_distance = exp_fleets_distance(0)
+		min_index = 0
+		for k, 1, FLEET_SIZE
+			if(min_distance > exp_fleets_distance(k)){
+				min_distance = exp_fleets_distance(k)
+				min_index = k
+			}
+		next
+		if(min_distance < 20) :return min_index
+		return -1
 #global

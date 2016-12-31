@@ -47,7 +47,6 @@
 	// 遠征タイマーを取得
 	#deffunc getExpeditionTimer
 		gsel SHOT_BUFFER_ID
-		;bmpsave "hoge.bmp"
 		// どの位置に遠征アイコンが立っているかを検出する
 		dim exp_flg, EXP_LIST_HEIGHT
 		for ei, 0, EXP_LIST_HEIGHT
@@ -70,7 +69,6 @@
 			// 遠征艦隊番号
 			getDifferenceHash ahash, SHOT_BUFFER_ID, exp_fleet_number_px, exp_fleet_number_py(ei), exp_fleet_number_wx, exp_fleet_number_wy
 			fleet_number = judgeExpFleets(ahash)
-			;logmes "" + fleet_number + " " + hashToStr(ahash)
 			if(fleet_number < 0) :fleet_number = 0
 			// 読み込み処理
 			exp_timer@Config(fleet_number) = now_time + cnvFloatSec(timer_digit(0) * 10 + timer_digit(1), timer_digit(2) * 10 + timer_digit(3), timer_digit(4) * 10 + timer_digit(5))
