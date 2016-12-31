@@ -43,10 +43,14 @@
 
 		// 各種タイマー画面
 		// ウィンドウを設置
-		screen TIMER_WINDOW_ID, POS_X(3), POS_Y(3)
+		screen TIMER_WINDOW_ID, POS_X(3), POS_Y(4)
 		hwnd_window(TIMER_WINDOW_ID) = hwnd
 		title "各種タイマー"
 		gsel TIMER_WINDOW_ID, -1
+		pos POS_X(0), POS_Y(0)
+			sdim timer_message, 32768
+			mesbox timer_message, SIZE_X(3), SIZE_Y(4), 4
+			timer_message_id = stat
 
 		// メイン画面
 		// ウィンドウを設置

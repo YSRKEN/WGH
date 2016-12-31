@@ -10,6 +10,11 @@
 		can_exp_button_py.0 = 8.996,29.92,50.63,71.55
 		can_exp_button_wx = 11.16
 		can_exp_button_wy = 5.230
+		// 艦隊番号アイコンの位置および大きさ
+		exp_fleet_number_px = 0.0
+		exp_fleet_number_py.0 = 0.0, 0.0, 0.0, 0.0
+		exp_fleet_number_wx = 0.0
+		exp_fleet_number_wy = 0.0
 		// 遠征時間表示の位置および大きさ
 		exp_timer_px.0 = 60.89,62.63,65.45,67.10,69.80,71.56
 		exp_timer_py.0 = 5.858,26.57,47.49,68.41
@@ -17,6 +22,9 @@
 		exp_timer_wy = 4.184
 		// 保持する時間表記
 		ddim exp_timer, FLEET_SIZE
+		for fi, 0, FLEET_SIZE
+			exp_timer(fi) = -1.0
+		next
 	return
 	// 時間データを修正
 	#deffunc fixTime array timer_digit_
@@ -39,19 +47,42 @@
 				exp_flg(ei) = FALSE
 			}
 		next
-		// 立っている遠征について、遠征時間を計測する
+		// 立っている遠征について、遠征時間・遠征艦隊番号を読み込む
 		now_time = getFloatTime()
-		sdim output_timer, 1024
 		for ei, 0, EXP_LIST_HEIGHT
-			if(exp_flg(ei) == FALSE) :exp_timer(ei) = -1.0 :_continue
+			if(exp_flg(ei) == FALSE) :_continue
+			// 遠征時間
 			dim timer_digit, TIMER_DIGIT_COUNT
 			getTimerOCR timer_digit, SHOT_BUFFER_ID, exp_timer_px, exp_timer_py(ei), exp_timer_wx, exp_timer_wy, 140, TRUE
 			fixTime timer_digit
-			exp_timer(ei) = now_time + cnvFloatSec(timer_digit(0) * 10 + timer_digit(1), timer_digit(2) * 10 + timer_digit(3), timer_digit(4) * 10 + timer_digit(5))
-			output_timer += "[" + ei + "] "
-			output_timer += "" + cnvStrDate(exp_timer(ei)) + " " + cnvStrTime(exp_timer(ei) - now_time)
-			output_timer += "\n"
+			// 遠征艦隊番号
+			fleet_number = 0
+			;getDifferenceHash ahash, SHOT_BUFFER_ID, exp_fleet_number_px, exp_fleet_number_py(ei), exp_fleet_number_wx, exp_fleet_number_wy
+			;logmes hashToStr(ahash)
+			// 読み込み処理
+			exp_timer(fleet_number) = now_time + cnvFloatSec(timer_digit(0) * 10 + timer_digit(1), timer_digit(2) * 10 + timer_digit(3), timer_digit(4) * 10 + timer_digit(5))
 		next
-		logmes output_timer
+	return
+	// 各種タイマーを更新
+	#deffunc redrawTimers
+		timer_message@GUI = "【遠征艦隊】\n"
+		now_time = getFloatTime()
+		for fi, 0, FLEET_SIZE
+			timer_message@GUI += str(fi + 1) + "→"
+			if(exp_timer(fi) < 0.0){
+				timer_message@GUI += "00:00:00\n"
+			}else{
+				time_diff = exp_timer(fi) - now_time
+				if(time_diff < 0.0){
+					exp_timer(fi) = -1.0
+					timer_message@GUI += "00:00:00\n"
+				}else{
+					timer_message@GUI += cnvStrTime(time_diff) + "\n"
+				}
+			}
+		next
+		gsel TIMER_WINDOW_ID@GUI
+		objprm timer_message_id@GUI, timer_message@GUI
+		resetCurrentWindow
 	return
 #global

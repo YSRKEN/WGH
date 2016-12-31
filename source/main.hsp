@@ -50,6 +50,8 @@ repeat
 			addMessage "遠征画面..."
 			getExpeditionTimer
 		}
+		// 各種タイマー更新
+		redrawTimers
 	}
 	// 時間待ち(5fps)
 	await 200
