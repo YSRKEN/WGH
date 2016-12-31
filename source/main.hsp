@@ -50,7 +50,6 @@ repeat
 		}
 		// 遠征タイマー認識
 		if(isExpeditionScene()){
-			addMessage "遠征画面..."
 			getExpeditionTimer
 		}
 		// 各種タイマー更新
