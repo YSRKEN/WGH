@@ -15,6 +15,7 @@
 	#const OCR_TEMP_BLOCK_SIZE 36
 	#const OCR_DIGITS 10
 	#const OCR_A2D_MAP_ID 5
+	#const SQUARE_INNER_WIDTH 5	// getSquareInner関数で、読み取り精度を上げるタネ
 	// コンストラクタ
 	#deffunc initGraphic
 		//「源暎ゴシックM SemiBold」(作：おもたん氏)で出力した画像を使用
@@ -140,33 +141,46 @@
 			offset_y = 0
 		}
 		;検索する(上・左・下・右の順)
+		;SQUARE_INNER_WIDTH
 		for y, cy_ - 1, y_min - 1, -1
 			pget cx_ + offset_x, y + offset_y
-			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect_(1) = y + 1
-				_break
-			}
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget cx_ + offset_x + SQUARE_INNER_WIDTH, y + offset_y
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget cx_ + offset_x - SQUARE_INNER_WIDTH, y + offset_y
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			output_rect_(1) = y + 1
+			_break
 		next
 		for x, cx_ - 1, x_min - 1, -1
 			pget x + offset_x, cy_ + offset_y
-			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect_(0) = x + 1
-				_break
-			}
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget x + offset_x, cy_ + offset_y + SQUARE_INNER_WIDTH
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget x + offset_x, cy_ + offset_y - SQUARE_INNER_WIDTH
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			output_rect_(0) = x + 1
+			_break
 		next
 		for y, cy_ + 1, y_max + 1
 			pget cx_ + offset_x, y + offset_y
-			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect_(3) = y - 1
-				_break
-			}
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget cx_ + offset_x + SQUARE_INNER_WIDTH, y + offset_y
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget cx_ + offset_x - SQUARE_INNER_WIDTH, y + offset_y
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			output_rect_(3) = y - 1
+			_break
 		next
 		for x, cx_ + 1, x_max + 1
 			pget x + offset_x, cy_ + offset_y
-			if((ginfo_r == cr) && (ginfo_g == cg) && (ginfo_b == cb)){
-				output_rect_(2) = x - 1
-				_break
-			}
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget x + offset_x, cy_ + offset_y + SQUARE_INNER_WIDTH
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			pget x + offset_x, cy_ + offset_y - SQUARE_INNER_WIDTH
+			if((ginfo_r != cr) || (ginfo_g != cg) || (ginfo_b != cb)) :_continue
+			output_rect_(2) = x - 1
+			_break
 		next
 	return
 	// rgbで色指定
