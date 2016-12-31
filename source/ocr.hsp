@@ -38,10 +38,10 @@
 	// 数字認識用関数
 	#defcfunc getNumber int buffer_id_, double px_, double py_, double wx_, double wy_, int threshold_, int nega_flg_
 		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
-		px = int(px_ * window_wx@GetPic / 100)
-		py = int(py_ * window_wy@GetPic / 100)
-		wx = int(wx_ * window_wx@GetPic / 100)
-		wy = int(wy_ * window_wy@GetPic / 100)
+		px = getPixelPositionX(px_)
+		py = getPixelPositionY(py_)
+		wx = getPixelPositionX(wx_)
+		wy = getPixelPositionY(wy_)
 		// トリミング処理を行う
 		buffer TEMP_BUFFER_ID, wx, wy
 		gcopy buffer_id_, px, py, wx, wy

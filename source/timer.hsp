@@ -76,24 +76,23 @@
 	return
 	// 各種タイマーを更新
 	#deffunc redrawTimers
-		timer_message@GUI = "【遠征艦隊】\n"
+		sdim timer_message, 32768
+		timer_message = "【遠征艦隊】\n"
 		now_time = getFloatTime()
 		for fi, 0, FLEET_SIZE
-			timer_message@GUI += str(fi + 1) + "→"
+			timer_message += str(fi + 1) + "→"
 			if(exp_timer@Config(fi) < 0.0){
-				timer_message@GUI += "00:00:00\n"
+				timer_message += "00:00:00\n"
 			}else{
 				time_diff = exp_timer@Config(fi) - now_time
 				if(time_diff < 0.0){
 					exp_timer@Config(fi) = -1.0
-					timer_message@GUI += "00:00:00\n"
+					timer_message += "00:00:00\n"
 				}else{
-					timer_message@GUI += cnvStrTime(time_diff) + "\n"
+					timer_message += cnvStrTime(time_diff) + "\n"
 				}
 			}
 		next
-		gsel TIMER_WINDOW_ID@GUI
-		objprm timer_message_id@GUI, timer_message@GUI
-		resetCurrentWindow
+		setTimerMessage timer_message
 	return
 #global

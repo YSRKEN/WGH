@@ -133,6 +133,13 @@
 		color_rgb bg_color@Config
 		boxf px2 - 1, py2 - 1 , px + 1, py + 1
 	return
+	// 各種タイマー画面の表示を更新する
+	#deffunc setTimerMessage str timer_message_
+		gsel TIMER_WINDOW_ID
+		timer_message = timer_message_
+		objprm timer_message_id, timer_message
+		resetCurrentWindow
+	return
 	// 終了状態かをチェックする
 	#defcfunc isExit
 	return exit_flg

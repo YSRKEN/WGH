@@ -150,4 +150,10 @@
 		humming = getHummingDistance(ahash, $94d07268, $2d656476)
 		if(humming >=20) :return FALSE
 	return TRUE
+	// パーセンテージ座標をピクセル座標に変換する
+	#defcfunc getPixelPositionX double x_
+	return int(x_ * window_wx / 100)
+	#defcfunc getPixelPositionY double y_
+	return int(y_ * window_wy / 100)
+	
 #global
