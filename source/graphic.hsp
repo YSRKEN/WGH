@@ -18,7 +18,6 @@
 	#const SQUARE_INNER_WIDTH 5	// getSquareInner関数で、読み取り精度を上げるタネ
 	// コンストラクタ
 	#deffunc initGraphic
-		//「源暎ゴシックM SemiBold」(作：おもたん氏)で出力した画像を使用
 		buffer OCR_TEMP_ID, OCR_TEMP_BLOCK_SIZE * OCR_DIGITS, OCR_TEMP_BLOCK_SIZE
 		picload exe_path@ + "\\template.png"
 		buffer OCR_MAP_ID, (OCR_WIDTH + 2) * (OCR_DIGITS * 2 - 1), OCR_HEIGHT + 2

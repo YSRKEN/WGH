@@ -8,7 +8,9 @@ The WarshipGirls Helper by HSP
 - 動作確認環境：Windows 10(64bit)＋BlueStacks 2
 
 ## 警告
-- 現在の実装では、戦艦少女の画面座標を取得する際、「戦艦少女のゲーム表示の周りに黒枠(#000000)がある」ことを前提にしています。また、前述の動作確認環境以外での動作は確認していません
+- 前述の動作確認環境以外での動作は確認していません
+- デフォルトの設定では、戦艦少女の画面座標を取得する際、「ゲーム表示の周りに黒枠(#000000)がある」ことを前提にしています
+- ただ、ゲーム表示の背景色は黒以外でも、設定変更によって対応可能です
 
 ## 使い方
 　[help.md](./help/help.md)を参照してください。
@@ -16,6 +18,9 @@ The WarshipGirls Helper by HSP
 ## 注意書き
 - このソフトで生じたいかなる損害についても責任を負いません
 - このソフトは [MIT License](https://ja.osdn.net/projects/opensource/wiki/licenses%2FMIT_license) です
+- template.pngの作り方について
+ - ゲーム素材は一切使用していません
+ - 数字のフォントは、おもたん氏の「源暎ゴシックM SemiBold」を画像化したものを使用しました
 
 ## 更新履歴
 　[history.md](./help/history.md)を参照してください。
