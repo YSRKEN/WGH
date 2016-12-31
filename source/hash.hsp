@@ -93,10 +93,11 @@
 	// ‰“ªŠÍ‘à”Ô†‚ğ”»’è‚·‚é
 	#defcfunc judgeExpFleets array ahash_
 		dim exp_fleets_distance, FLEET_SIZE
-		exp_fleets_distance(0) = getHummingDistance(ahash_, $8c0c0e8e, $8e8e0f13)
-		exp_fleets_distance(1) = getHummingDistance(ahash_, $8c0f63e3, $c78e1d37)
-		exp_fleets_distance(2) = getHummingDistance(ahash_, $9c0f6387, $0e83630f)
-		exp_fleets_distance(3) = getHummingDistance(ahash_, $66c78737, $67672787)
+		exp_fleets_distance(0) = getHummingDistance(ahash_, $19191c1c, $1c1c1f2f)
+		exp_fleets_distance(1) = getHummingDistance(ahash_, $181ec7c6, $8e1c7b6e)
+		exp_fleets_distance(2) = getHummingDistance(ahash_, $381ec60e, $3c06c61e)
+		exp_fleets_distance(3) = getHummingDistance(ahash_, $cc8e0e4e, $cecf0fce)
+		;logmes "" + exp_fleets_distance@Hash(0) + " " + exp_fleets_distance@Hash(1) + " " + exp_fleets_distance@Hash(2) + " " + exp_fleets_distance@Hash(3)
 		min_distance = exp_fleets_distance(0)
 		min_index = 0
 		for k, 1, FLEET_SIZE
