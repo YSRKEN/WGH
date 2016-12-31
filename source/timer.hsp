@@ -20,6 +20,24 @@
 		exp_timer_wx = 1.645
 		exp_timer_wy = 4.184
 	return
+	// 現在時刻を文字列形式で返す
+	// 例："2016-12-25 12-48-03.582"
+	#defcfunc getNowTimeStr
+		yy = gettime(0)
+		mo = gettime(1)
+		dd = gettime(3)
+		hh = gettime(4)
+		mi = gettime(5)
+		ss = gettime(6)
+		ms = gettime(7)
+	return strf("%04d-%02d-%02d %02d-%02d-%02d-%03d", yy, mo, dd, hh, mi, ss, ms)
+	// 現在時刻を短い文字列形式で返す
+	// 例："12:48:03"
+	#defcfunc getNowTimeSmallStr
+		hh = gettime(4)
+		mi = gettime(5)
+		ss = gettime(6)
+	return strf("%02d:%02d:%02d", hh, mi, ss)
 	// 時間データを修正
 	#deffunc fixTime array timer_digit_
 		timer_digit_(0) = limit(timer_digit_(0), 0, 1)

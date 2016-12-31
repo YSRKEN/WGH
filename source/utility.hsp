@@ -1,37 +1,4 @@
 /* 汎用ルーチン関係 */
 #module Utility
-	// 現在時刻を文字列形式で返す
-	// 例："2016-12-25 12-48-03.582"
-	#defcfunc getNowTimeStr
-		yy = gettime(0)
-		mo = gettime(1)
-		dd = gettime(3)
-		hh = gettime(4)
-		mi = gettime(5)
-		ss = gettime(6)
-		ms = gettime(7)
-	return strf("%04d-%02d-%02d %02d-%02d-%02d-%03d", yy, mo, dd, hh, mi, ss, ms)
-	// 現在時刻を短い文字列形式で返す
-	// 例："12:48:03"
-	#defcfunc getNowTimeSmallStr
-		hh = gettime(4)
-		mi = gettime(5)
-		ss = gettime(6)
-	return strf("%02d:%02d:%02d", hh, mi, ss)
-	// ビットカウント
-	#defcfunc popcnt int x_
-		x = x_ - ((x_ >> 1) & $55555555)
-		x = (x & $33333333) + ((x >> 2) & $33333333)
-		x = (x + (x >> 4)) & $0f0f0f0f
-		x = x + (x >> 8)
-		x = x + (x >> 16)
-	return x & $3f
-	// ハミング距離を計算する
-	#defcfunc getHummingDistance array data1_, int data2_0_, int data2_1_
-		xor_1 = data1_(0) ^ data2_0_
-		xor_2 = data1_(1) ^ data2_1_
-	return popcnt(xor_1) + popcnt(xor_2)
-	// ハッシュ値を文字列化する
-	#defcfunc hashToStr array data_
-	return strf("%08x,%08x", data_(0), data_(1))
+
 #global

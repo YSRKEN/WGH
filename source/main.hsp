@@ -8,6 +8,8 @@
 #include "config.hsp"
 #include "date.hsp"
 #include "graphic.hsp"
+#include "hash.hsp"
+#include "ocr.hsp"
 #include "getpic.hsp"
 #include "gui.hsp"
 #include "timer.hsp"
@@ -17,7 +19,7 @@
 // ‰Šú‰»ƒ‹[ƒ`ƒ“
 initConfig
 initDate
-initGraphic
+initOCR
 initGetPic
 initGUI
 initTimer
