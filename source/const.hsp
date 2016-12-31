@@ -9,8 +9,9 @@
 // テンポラリバッファのウィンドウID
 #const global TEMP_BUFFER_ID 99
 #const global TEMP_BUFFER_ID2 100
-// RECT
-#const global RECT_SIZE 4
+// その他定数
+#const global RECT_SIZE  4	//RECT
+#const global FLEET_SIZE 4	//艦隊数
 
 #packopt name SOFT_NAME
 

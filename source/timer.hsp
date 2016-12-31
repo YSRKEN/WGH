@@ -2,7 +2,6 @@
 #module Timer
 	#const EXP_LIST_HEIGHT 4	//遠征画面のリストの縦の長さ
 	#const TIMER_DIGIT_COUNT 6	//タイマーの数字の数(桁)
-	#const FLEET_SIZE 4			//艦隊数
 	// コンストラクタ
 	#deffunc initTimer
 		// 「艦隊派遣」ボタンの位置および大きさ
@@ -20,11 +19,6 @@
 		exp_timer_py.0 = 5.858,26.57,47.49,68.41
 		exp_timer_wx = 1.645
 		exp_timer_wy = 4.184
-		// 保持する時間表記
-		ddim exp_timer, FLEET_SIZE
-		for fi, 0, FLEET_SIZE
-			exp_timer(fi) = -1.0
-		next
 	return
 	// 時間データを修正
 	#deffunc fixTime array timer_digit_
@@ -61,7 +55,7 @@
 			;logmes "" + fleet_number + " " + hashToStr(ahash)
 			if(fleet_number < 0) :fleet_number = 0
 			// 読み込み処理
-			exp_timer(fleet_number) = now_time + cnvFloatSec(timer_digit(0) * 10 + timer_digit(1), timer_digit(2) * 10 + timer_digit(3), timer_digit(4) * 10 + timer_digit(5))
+			exp_timer@Config(fleet_number) = now_time + cnvFloatSec(timer_digit(0) * 10 + timer_digit(1), timer_digit(2) * 10 + timer_digit(3), timer_digit(4) * 10 + timer_digit(5))
 		next
 	return
 	// 各種タイマーを更新
@@ -70,12 +64,12 @@
 		now_time = getFloatTime()
 		for fi, 0, FLEET_SIZE
 			timer_message@GUI += str(fi + 1) + "→"
-			if(exp_timer(fi) < 0.0){
+			if(exp_timer@Config(fi) < 0.0){
 				timer_message@GUI += "00:00:00\n"
 			}else{
-				time_diff = exp_timer(fi) - now_time
+				time_diff = exp_timer@Config(fi) - now_time
 				if(time_diff < 0.0){
-					exp_timer(fi) = -1.0
+					exp_timer@Config(fi) = -1.0
 					timer_message@GUI += "00:00:00\n"
 				}else{
 					timer_message@GUI += cnvStrTime(time_diff) + "\n"

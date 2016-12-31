@@ -23,6 +23,7 @@ initGUI
 initTimer
 // メインループ
 timer_sec = gettime(6)
+
 repeat
 	// 毎フレーム行う処理
 	// 終了フラグが付いた時は終了する
