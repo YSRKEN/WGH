@@ -17,11 +17,16 @@
 	#deffunc initConfig
 		// 設定を初期化
 		// 設定を読み込み
+		// 保持する時間表記
+		ddim exp_timer, FLEET_SIZE
 		if(loadConfig()){
 			dialog "セーブデータを読み込めませんでした.\nデフォルトの設定で起動します.", 1, SOFT_NAME
 			twitter_flg = FALSE	//Twitter投稿用にスクショを加工するならTRUE
 			getpos_flg = FALSE	//座標を取得できていればTRUE
 			bg_color = $000000	//背景色設定
+			for fi, 0, FLEET_SIZE
+				exp_timer(fi) = -1.0
+			next
 		}
 		// フォルダの存在をチェックして生成
 		dirlist x, pic_path@, 5
@@ -50,6 +55,12 @@
 		rgb_g = limit(int(temp(1)), 0, 255)
 		rgb_b = limit(int(temp(2)), 0, 255)
 		bg_color = pack_rgb(rgb_r, rgb_g, rgb_b)
+		// exp_timer
+		for fi, 0, FLEET_SIZE
+			str_exp_timer = ""
+			if(jsongetstr(str_exp_timer, "exp_timer_" + fi, json_ptr)) :return TRUE
+			exp_timer(fi) = double(str_exp_timer)
+		next
 		jsonclose@
 	return FALSE
 	// 設定をJSONに保存する
@@ -57,7 +68,11 @@
 		sdim json_str, 32768
 		json_str = "{\n"
 		json_str += "    \"twitter_flg\":" + twitter_flg + ",\n"
-		json_str += "    \"bg_color\":\"" + ToStrColor(bg_color) + "\"\n"
+		json_str += "    \"bg_color\":\"" + ToStrColor(bg_color) + "\",\n"
+		for fi, 0, FLEET_SIZE
+			json_str += "    \"exp_timer_" + fi + "\":\"" + exp_timer(fi) + "\",\n"
+		next
+		json_str += "    \"version\":\"" + SOFT_VER + "\"\n"
 		json_str += "}\n"
 		notesel json_str
 		notesave save_path@ + "\\config.json"

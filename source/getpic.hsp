@@ -17,11 +17,10 @@
 	#const SM_CXVIRTUALSCREEN 0x0000004E
 	#const SM_CYVIRTUALSCREEN 0x0000004F
 	// API関係ではない定数
-	#const RECT_SIZE 4
-	#const VIRTUAL_SCREEN_ID 10	//仮想画面全体のスクショ
-	#const CLICK_SCREEN_ID   11	//座標取得時にクリックする画面
-	#const SHOT_BUFFER_ID    12	//スクショ用バッファ
-	#const SHIFT_BUFFER_ID   13	//ズレ検知用バッファ
+	#const VIRTUAL_SCREEN_ID     10	//仮想画面全体のスクショ
+	#const CLICK_SCREEN_ID       11	//座標取得時にクリックする画面
+	#const global SHOT_BUFFER_ID 12	//スクショ用バッファ
+	#const SHIFT_BUFFER_ID       13	//ズレ検知用バッファ
 	// GetPicモジュールを初期化
 	#deffunc initGetPic
 		// 仮想画面の左上座標および大きさを取得
@@ -141,5 +140,14 @@
 		if(isPositionShifting()) :return FALSE
 		// フラグ処理
 		getpos_flg@Config = TRUE
+	return TRUE
+	// 遠征画面かを判定する
+	#defcfunc isExpeditionScene
+		getDifferenceHash ahash, SHOT_BUFFER_ID, 10.11, 76.36, 3.525, 6.276
+		humming = getHummingDistance(ahash, $2d2a17a7, $26222a2a)
+		if(humming >=20) :return FALSE
+		getDifferenceHash ahash, SHOT_BUFFER_ID, 21.86, 62.76, 3.878, 1.883
+		humming = getHummingDistance(ahash, $94d07268, $2d656476)
+		if(humming >=20) :return FALSE
 	return TRUE
 #global
