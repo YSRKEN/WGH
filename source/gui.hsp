@@ -1,12 +1,16 @@
 /* GUI関係 */
 #module GUI
 	// ウィンドウID
-	#const MAIN_WINDOW_ID 0	// メイン画面
-	#const WINDOW_ID_MAX MAIN_WINDOW_ID
+	#const MAIN_WINDOW_ID   0	// メイン画面
+	#const OPTION_WINDOW_ID 1	// オプション画面
+	#const TIMER_WINDOW_ID  2	// 各種タイマー画面
+	#const WINDOW_ID_MAX TIMER_WINDOW_ID
 	// オブジェクトサイズ
 	#const OBJ_X 64
 	#const OBJ_Y 24
 	#const OBJ_SPACE 10
+	#const FONT_SIZE 12
+	#const OBJ_OFFSET 6
 	#define ctype POS_X(%1) (OBJ_X * (%1) + OBJ_SPACE * ((%1) + 1))
 	#define ctype POS_Y(%1) (OBJ_Y * (%1) + OBJ_SPACE * ((%1) + 1))
 	#define ctype SIZE_X(%1) (OBJ_X * (%1) + OBJ_SPACE * ((%1) - 1))
@@ -20,14 +24,40 @@
 	#const BM_GETCHECK $F0
 	// GUIを初期化
 	#deffunc initGUI
-		dim hwnd_window
+		dim hwnd_window, WINDOW_ID_MAX + 1
+
+		// オプション画面
+		// ウィンドウを設置
+		screen OPTION_WINDOW_ID, POS_X(3), POS_Y(3)
+		hwnd_window(OPTION_WINDOW_ID) = hwnd
+		title "オプション"
+		gsel OPTION_WINDOW_ID, -1
+		// ボタンなどのオブジェクトを設置
+		pos POS_X(0), POS_Y(0) + OBJ_OFFSET
+			font msgothic, FONT_SIZE
+			mes "ゲーム画面の背景色："
+		drawBgIcon
+		pos OBJ_SPACE * 2 + FONT_SIZE * 10 + OBJ_Y, POS_Y(0)
+			objsize OBJ_X - OBJ_SPACE, OBJ_Y
+			button gosub "選択...", *selectBgColor
+
+		// 各種タイマー画面
+		// ウィンドウを設置
+		screen TIMER_WINDOW_ID, POS_X(3), POS_Y(4)
+		hwnd_window(TIMER_WINDOW_ID) = hwnd
+		title "各種タイマー"
+		gsel TIMER_WINDOW_ID, -1
+		pos POS_X(0), POS_Y(0)
+			sdim timer_message, 32768
+			mesbox timer_message, SIZE_X(3), SIZE_Y(4), 4
+			timer_message_id = stat
 
 		// メイン画面
 		// ウィンドウを設置
-		screen MAIN_WINDOW_ID, POS_X(3), POS_Y(5)
+		screen MAIN_WINDOW_ID, POS_X(3), POS_Y(6)
 		hwnd_window(MAIN_WINDOW_ID) = hwnd
-		gsel MAIN_WINDOW_ID, 2
 		title SOFT_NAME
+;		gsel MAIN_WINDOW_ID, 2
 		// ボタンなどのオブジェクトを設置
 		pos POS_X(0), POS_Y(0)
 			objsize SIZE_X(2), OBJ_Y
@@ -43,13 +73,23 @@
 			objsize POS_X(3) - OBJ_X - OBJ_Y - OBJ_SPACE * 4, OBJ_Y
 			chkbox "Twitter用に保存", twitter_flg@Config
 			chkbox_twitter_id = stat
+			chkbox_twitter_hwnd = objinfo_hwnd(chkbox_twitter_id)
 		pos POS_X(3) - OBJ_Y - OBJ_SPACE, POS_Y(1)
 			objsize OBJ_Y, OBJ_Y
 			button gosub "開", *openPictureFloder
 		pos POS_X(0), POS_Y(2)
+			objsize OBJ_X, OBJ_Y
+			button gosub "オプション", *showOptionWindow
+		pos POS_X(1), POS_Y(2)
+			objsize OBJ_X, OBJ_Y
+			button gosub "タイマー", *showTimerWindow
+		pos POS_X(0), POS_Y(3)
 			sdim log_message, 32768
 			mesbox log_message, SIZE_X(3), SIZE_Y(3), 4
 			mesbox_log_id = stat
+			mesbox_log_hwnd = objinfo_hwnd(mesbox_log_id)
+
+		exit_flg = FALSE
 	return
 	// ログに追加
 	#deffunc addMessage str message_
@@ -58,7 +98,7 @@
 		// 追記した内容を画面に反映し、ついでにスクロールを掛ける
 		gsel MAIN_WINDOW_ID, 2
 		objprm mesbox_log_id, log_message
-		sendmsg objinfo(mesbox_log_id, 2), EM_SCROLL, SB_BOTTOM, 0
+		sendmsg mesbox_log_hwnd, EM_SCROLL, SB_BOTTOM, 0
 	return
 	// カレントウィンドウをメイン画面に戻す
 	// これ噛まさないとsendmsg周りで強制落ちするとかふざけんなボケ
@@ -71,20 +111,42 @@
 		objprm button_getwpbc_id, "座標取得"
 		getpos_flg@Config = FALSE
 	return
-*getWPBC
-	if(getWindowPositionByClick()){
+	// 座標を取得したので画面に反映する
+	#deffunc showGetPosMessage
 		gsel MAIN_WINDOW_ID
 		objprm button_getwpbc_id, "(" + window_px@GetPic + "," + window_py@GetPic + ") " + window_wx@GetPic + "x" + window_wy@GetPic
 		addMessage "座標取得完了."
 		addMessage "左上座標：(" + window_px@GetPic + "," + window_py@GetPic + ")"
 		addMessage "画面サイズ：" + window_wx@GetPic + "x" + window_wy@GetPic
+	return
+	// オプション画面にて、背景色の設定を表示する
+	#deffunc drawBgIcon
+		px = OBJ_SPACE + FONT_SIZE * 10
+		py = POS_Y(0)
+		wx = OBJ_Y
+		wy = OBJ_Y
+		px2 = px + wx
+		py2 = py + wy
+		gsel OPTION_WINDOW_ID
+		color
+		boxf px2, py2, px, py
+		color_rgb bg_color@Config
+		boxf px2 - 1, py2 - 1 , px + 1, py + 1
+	return
+	// 終了状態かをチェックする
+	#defcfunc isExit
+	return exit_flg
+*getWPBC
+	if(getWindowPositionByClick()){
+		showGetPosMessage
 	}else{
 		addMessage "エラー：座標取得に失敗しました."
 	}
 	return
 *showInfo
 	// ソフト情報を表示する処理
-	dialog "ソフト名：" + SOFT_NAME + "\nバージョン：" + SOFT_VER + "\n最終更新日：" + SOFT_TIME + "\n作者：YSR"
+	getExpeditionTimer
+;	dialog "ソフト名：" + SOFT_NAME + "\nバージョン：" + SOFT_VER + "\n最終更新日：" + SOFT_TIME + "\n作者：YSR"
 	return
 *savePicture
 	// スクショを保存する処理
@@ -101,17 +163,45 @@
 	exec "explorer.exe " + pic_path@
 	addMessage "保存フォルダを開く..."
 	return
+*showOptionWindow
+	// オプション画面を表示する処理
+	gsel OPTION_WINDOW_ID, 2
+	resetCurrentWindow
+	return
+*showTimerWindow
+	// 各種タイマー画面を表示する処理
+	gsel TIMER_WINDOW_ID, 2
+	resetCurrentWindow
+	return
+*selectBgColor
+	dialog "", 33
+	if(stat != 0){
+		bg_color@Config = pack_rgb(ginfo_r, ginfo_g, ginfo_b)
+		drawBgIcon
+		resetCurrentWindow
+	}
+	return
 *move
-	// ウィンドウをドラッグ可能にする処理
+	// ウィンドウがクリックされた際の処理
 	if(wparam != 1) :return
 	if(ginfo_act <= WINDOW_ID_MAX){
+		// ドラッグ操作
 		sendmsg hwnd_window(ginfo_act), WM_NCLBUTTONDOWN, HTCAPTION, 0
 	}
-return
+	return
+*close
+	// ソフトウェア終了時の処理
+	if(ginfo_act == MAIN_WINDOW_ID){
+		exit_flg = TRUE
+	}else:if(ginfo_act <= WINDOW_ID_MAX){
+		gsel ginfo_act, -1
+	}
+	return
 *action_object
-	if(lparam == objinfo(chkbox_twitter_id, 2)){
+	if(lparam == chkbox_twitter_hwnd){
 		// 「Twitter用に保存」チェックボックスのチェック状態を表示
 		// chkbox命令にチェック状態が反映される前なので、sendmsg命令を活用する
+		gsel MAIN_WINDOW_ID
 		sendmsg lparam, BM_GETCHECK, 0, 0
 		if(stat){
 			addMessage "Twitter用に保存：ON"
@@ -119,7 +209,8 @@ return
 			addMessage "Twitter用に保存：OFF"
 		}
 	}
-return
+	return
 #global
 onclick gosub *move@GUI
+onexit gosub *close@GUI
 oncmd gosub *action_object@GUI, WM_COMMAND@GUI

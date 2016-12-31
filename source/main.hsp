@@ -1,25 +1,61 @@
 // 外部ライブラリ
+#include "hspcv.as"
+#include "hspinet.as"
 #include "a2d.hsp"
 // 自前ライブラリ
 #include "const.hsp"
 #include "utility.hsp"
 #include "config.hsp"
+#include "date.hsp"
 #include "graphic.hsp"
 #include "getpic.hsp"
 #include "gui.hsp"
+#include "timer.hsp"
 
 // メインルーチン
 
 // 初期化ルーチン
 initConfig
+initDate
+initGraphic
 initGetPic
 initGUI
+initTimer
 // メインループ
+timer_sec = gettime(6)
+
 repeat
-	// ズレ検知
-	if(isPositionShifting()){
-		addMessage "画面のズレを検知しました."
+	// 毎フレーム行う処理
+	// 終了フラグが付いた時は終了する
+	if(isExit()) :break
+	// 画像をあらかじめ取得しておく
+	getScreenshot
+
+	// 毎秒行う処理
+	timer_sec_now = gettime(6)
+	if(timer_sec != timer_sec_now){
+		timer_sec = timer_sec_now
+		// ズレ検知
+		if(isPositionShifting()){
+			addMessage "画面のズレを検知しました."
+			addMessage "自動ズレ修正を試みます."
+			if(tryFixPositionShifting()){
+				addMessage "ズレ修正に成功しました."
+				showGetPosMessage
+			}else{
+				addMessage "エラー：ズレ修正に失敗しました."
+			}
+		}
+		// 遠征タイマー認識
+		if(isExpeditionScene()){
+			addMessage "遠征画面..."
+			getExpeditionTimer
+		}
+		// 各種タイマー更新
+		redrawTimers
 	}
-	// 時間待ち(10fps)
-	await 100
+	// 時間待ち(5fps)
+	await 200
 loop
+saveConfig
+end

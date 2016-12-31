@@ -1,7 +1,11 @@
+*.dll
+*.exe
 zip/
-wgh.exe
+pic/
+save/
 source/hsptmp
 source/obj
-pic/
 source/packfile
 source/start.ax
+source/save/
+utility/

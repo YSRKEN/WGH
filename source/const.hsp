@@ -1,11 +1,21 @@
 /* グローバルな定数設定 */
+// ソフト名・バージョン・最終更新日
 #define global SOFT_NAME "WGH"
-#define global SOFT_VER  "1.0.2"
-#define global SOFT_TIME "2016/12/26"
+#define global SOFT_VER  "1.1.0"
+#define global SOFT_TIME "2016/12/31"
+// 真偽値
 #const global TRUE  1
 #const global FALSE 0
+// テンポラリバッファのウィンドウID
+#const global TEMP_BUFFER_ID 99
+#const global TEMP_BUFFER_ID2 100
+// その他定数
+#const global RECT_SIZE  4	//RECT
+#const global FLEET_SIZE 4	//艦隊数
 
 #packopt name SOFT_NAME
 
+// ファイルパス
 exe_path = dir_cur
 pic_path = dir_cur + "\\pic"
+save_path = dir_cur + "\\save"
