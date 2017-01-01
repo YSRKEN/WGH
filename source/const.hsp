@@ -1,8 +1,8 @@
 /* グローバルな定数設定 */
 // ソフト名・バージョン・最終更新日
 #define global SOFT_NAME "WGH"
-#define global SOFT_VER  "1.1.0"
-#define global SOFT_TIME "2016/12/31"
+#define global SOFT_VER  "1.1.1"
+#define global SOFT_TIME "2017/01/02"
 // 真偽値
 #const global TRUE  1
 #const global FALSE 0
@@ -12,6 +12,7 @@
 // その他定数
 #const global RECT_SIZE  4	//RECT
 #const global FLEET_SIZE 4	//艦隊数
+#const global WINDOW_COUNT 3	//表示する画面数
 
 #packopt name SOFT_NAME
 

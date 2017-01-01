@@ -16,9 +16,11 @@
 	// 設定を読み込んで初期化する
 	#deffunc initConfig
 		// 設定を初期化
-		// 設定を読み込み
 		// 保持する時間表記
 		ddim exp_timer, FLEET_SIZE
+		dim window_pos, WINDOW_COUNT, 3	//window_pos(ウィンドウ数, [x,y,フラグ])
+		dim window_show_flg, WINDOW_COUNT	//window_show_flg(インデックス0は不使用)
+		// 設定を読み込み
 		if(loadConfig()){
 			dialog "セーブデータを読み込めませんでした.\nデフォルトの設定で起動します.", 1, SOFT_NAME
 			twitter_flg = FALSE	//Twitter投稿用にスクショを加工するならTRUE
@@ -26,6 +28,12 @@
 			bg_color = $000000	//背景色設定
 			for fi, 0, FLEET_SIZE
 				exp_timer(fi) = -1.0
+			next
+			for wi, 0, WINDOW_COUNT
+				window_pos(wi, 0) = -1
+				window_pos(wi, 1) = -1
+				window_pos(wi, 2) = FALSE
+				window_show_flg(wi) = FALSE
 			next
 		}
 		// フォルダの存在をチェックして生成
@@ -43,6 +51,26 @@
 		notesel json_str
 		noteload save_path@ + "\\config.json"
 		jsonopen@ json_ptr, json_str
+		// version
+		version_str = ""
+		if(jsongetstr(version_str, "version", json_ptr)) :return TRUE
+		strrep version_str, ".", ""
+		if(int(version_str) >= 111){
+			// window_pos
+			for wi, 0, WINDOW_COUNT
+				str_window_pos = ""
+				if(jsongetstr(str_window_pos, "window_pos_x_" + wi, json_ptr)) :return TRUE
+				window_pos(wi, 0) = int(str_window_pos)
+				if(jsongetstr(str_window_pos, "window_pos_y_" + wi, json_ptr)) :return TRUE
+				window_pos(wi, 1) = int(str_window_pos)
+				window_pos(wi, 2) = TRUE
+			next
+			// window_show_flg
+			for wi, 0, WINDOW_COUNT
+				if(jsongetint(window_show_flg_, "window_show_flg_" + wi, json_ptr)) :return TRUE
+				window_show_flg(wi) = limit(window_show_flg_, FALSE, TRUE)
+			next
+		}
 		// twitter_flg
 		if(jsongetint(twitter_flg, "twitter_flg", json_ptr)) :return TRUE
 		twitter_flg = limit(twitter_flg, FALSE, TRUE)
@@ -71,6 +99,14 @@
 		json_str += "    \"bg_color\":\"" + ToStrColor(bg_color) + "\",\n"
 		for fi, 0, FLEET_SIZE
 			json_str += "    \"exp_timer_" + fi + "\":\"" + exp_timer(fi) + "\",\n"
+		next
+		for wi, 0, WINDOW_COUNT
+			gsel wi
+			json_str += "    \"window_pos_x_" + wi + "\":\"" + ginfo_wx1 + "\",\n"
+			json_str += "    \"window_pos_y_" + wi + "\":\"" + ginfo_wy1 + "\",\n"
+		next
+		for wi, 0, WINDOW_COUNT
+			json_str += "    \"window_show_flg_" + wi + "\":" + window_show_flg(wi) + ",\n"
 		next
 		json_str += "    \"version\":\"" + SOFT_VER + "\"\n"
 		json_str += "}\n"

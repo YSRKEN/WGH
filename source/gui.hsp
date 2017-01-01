@@ -24,7 +24,7 @@
 	#const BM_GETCHECK $F0
 	// GUIを初期化
 	#deffunc initGUI
-		dim hwnd_window, WINDOW_ID_MAX + 1
+		dim hwnd_window, WINDOW_COUNT
 
 		// オプション画面
 		// ウィンドウを設置
@@ -88,6 +88,22 @@
 			mesbox log_message, SIZE_X(3), SIZE_Y(3), 4
 			mesbox_log_id = stat
 			mesbox_log_hwnd = objinfo_hwnd(mesbox_log_id)
+
+		// 表示位置を制御
+		for wi, 0, WINDOW_COUNT
+			if(window_pos@Config(wi, 2)){
+				gsel wi
+				width ,,window_pos@Config(wi, 0), window_pos@Config(wi, 1)
+			}
+		next
+		for wi, 1, WINDOW_COUNT
+			if(window_show_flg@Config(wi)){
+				gsel wi, 2
+			}else{
+				gsel wi, -1
+			}
+		next
+		gsel MAIN_WINDOW_ID
 
 		exit_flg = FALSE
 	return
@@ -172,11 +188,13 @@
 *showOptionWindow
 	// オプション画面を表示する処理
 	gsel OPTION_WINDOW_ID, 2
+	window_show_flg@Config(OPTION_WINDOW_ID) = TRUE
 	resetCurrentWindow
 	return
 *showTimerWindow
 	// 各種タイマー画面を表示する処理
 	gsel TIMER_WINDOW_ID, 2
+	window_show_flg@Config(TIMER_WINDOW_ID) = TRUE
 	resetCurrentWindow
 	return
 *selectBgColor
@@ -190,17 +208,20 @@
 *move
 	// ウィンドウがクリックされた際の処理
 	if(wparam != 1) :return
-	if(ginfo_act <= WINDOW_ID_MAX){
+	act = ginfo_act
+	if(act <= WINDOW_ID_MAX){
 		// ドラッグ操作
-		sendmsg hwnd_window(ginfo_act), WM_NCLBUTTONDOWN, HTCAPTION, 0
+		sendmsg hwnd_window(act), WM_NCLBUTTONDOWN, HTCAPTION, 0
 	}
 	return
 *close
 	// ソフトウェア終了時の処理
-	if(ginfo_act == MAIN_WINDOW_ID){
+	act = ginfo_act
+	if(act == MAIN_WINDOW_ID){
 		exit_flg = TRUE
-	}else:if(ginfo_act <= WINDOW_ID_MAX){
-		gsel ginfo_act, -1
+	}else:if(act <= WINDOW_ID_MAX){
+		gsel act, -1
+		window_show_flg@Config(act) = FALSE
 	}
 	return
 *action_object
