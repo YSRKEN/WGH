@@ -1,0 +1,78 @@
+/* OCR関係 */
+#module OCR
+	#const TEMP_OCV_BUFFER_ID 0	//テンポラリ用途のCVバッファID
+	#const OCR_DIGITS 10		//算用数字の種類数
+	// initOCR関数用
+	#const OCR_TEMP_ID TEMP_BUFFER_ID	//2つの画像バッファID
+	#const OCR_MAP_ID  TEMP_BUFFER_ID2	//
+	#const OCR_TEMP_BLOCK_SIZE 36		//数字1つ辺りの大きさ(仮)
+	// getNumber関数用
+	#const OCR_HEIGHT 32		//OCR処理はOCR_WIDTH×OCR_HEIGHTピクセル
+	#const OCR_WIDTH  32		//に縮小した後にマッチングさせる
+	#const OCR_DIGIT_MAP_ID 1	//数字マップ用のCVバッファID
+	// コンストラクタ
+	#deffunc initOCR
+		buffer OCR_TEMP_ID, OCR_TEMP_BLOCK_SIZE * OCR_DIGITS, OCR_TEMP_BLOCK_SIZE
+		picload exe_path@ + "\\template.png"
+		buffer OCR_MAP_ID, (OCR_WIDTH + 2) * (OCR_DIGITS * 2 - 1), OCR_HEIGHT + 2
+		for di, 0, OCR_DIGITS
+			// 赤背景
+			gsel OCR_MAP_ID
+			color 255, 0, 0
+			boxf (OCR_WIDTH + 2) * di * 2, 0, (OCR_WIDTH + 2) * (di * 2 + 1) - 1, OCR_HEIGHT + 1
+			// 文字表示(クロップしてからズーム貼り付け)
+			gsel OCR_TEMP_ID
+			before_rect.0 = OCR_TEMP_BLOCK_SIZE * di, 0, OCR_TEMP_BLOCK_SIZE * (di + 1) - 1, OCR_TEMP_BLOCK_SIZE - 1
+			dim after_rect, RECT_SIZE
+			color $FF, $FF, $FF :getSquare before_rect, after_rect
+			wx2 = after_rect(2) - after_rect(0) + 1
+			wy2 = after_rect(3) - after_rect(1) + 1
+			gsel OCR_MAP_ID
+			pos (OCR_WIDTH + 2) * di * 2 + 1, 1
+			gzoom OCR_WIDTH, OCR_HEIGHT, OCR_TEMP_ID, after_rect(0), after_rect(1), wx2, wy2, 1
+		next
+		gsel OCR_MAP_ID
+		cvbuffer OCR_DIGIT_MAP_ID, ginfo_sx, ginfo_sy
+		cvputimg OCR_DIGIT_MAP_ID
+	return
+	// 数字認識用関数
+	#defcfunc getNumber int buffer_id_, double px_, double py_, double wx_, double wy_, int threshold_, int nega_flg_
+		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
+		px = getPixelPositionX(px_)
+		py = getPixelPositionY(py_)
+		wx = getPixelPositionX(wx_)
+		wy = getPixelPositionY(wy_)
+		// トリミング処理を行う
+		buffer TEMP_BUFFER_ID, wx, wy
+		gcopy buffer_id_, px, py, wx, wy
+		// 二値化する
+		cvbuffer TEMP_OCV_BUFFER_ID, wx, wy
+		cvputimg TEMP_OCV_BUFFER_ID
+		cvconvert 0, TEMP_OCV_BUFFER_ID
+		if(nega_flg_) :cvxors ,,, TEMP_OCV_BUFFER_ID
+		if(threshold_ >= 0){
+			cvthreshold CV_THRESH_BINARY, threshold_, 255, TEMP_OCV_BUFFER_ID
+		}else{
+			cvthreshold CV_THRESH_OTSU, threshold_, 255, TEMP_OCV_BUFFER_ID
+		}
+		// クロップした上で、マッチングのためOCR_WIDTH×OCR_HEIGHTピクセルに変形
+		cvgetimg TEMP_OCV_BUFFER_ID
+		before_rect.0 = 0, 0, wx - 1, wy - 1
+		dim after_rect, RECT_SIZE
+		color $FF, $FF, $FF :getSquare before_rect, after_rect
+		wx2 = after_rect(2) - after_rect(0) + 1
+		wy2 = after_rect(3) - after_rect(1) + 1
+		buffer TEMP_BUFFER_ID2, OCR_WIDTH + 2, OCR_HEIGHT + 2
+		color 255, 0, 0 :boxf :pos 1,1 :gzoom OCR_WIDTH, OCR_HEIGHT, TEMP_BUFFER_ID, after_rect(0), after_rect(1), wx2, wy2, 1
+		// マッチング処理
+		cvbuffer TEMP_OCV_BUFFER_ID, OCR_WIDTH + 2, OCR_HEIGHT + 2
+		cvputimg TEMP_OCV_BUFFER_ID
+		cvmatch match_x, match_y, CV_TM_SQDIFF, TEMP_OCV_BUFFER_ID, OCR_DIGIT_MAP_ID
+	return limit(int(1.0 * match_x / (OCR_WIDTH + 2) / 2 + 0.5), 0, 9)
+	// ある長さの数字列を認識する
+	#deffunc getTimerOCR array timer_digit_, int buffer_id_, array px_arr_, double py_, double wx_, double wy_, int threshold_, int nega_flg_
+		for k, 0, length(timer_digit_)
+			timer_digit_(k) = getNumber(buffer_id_, px_arr_(k), py_, wx_, wy_, threshold_, nega_flg_)
+		next
+	return
+#global

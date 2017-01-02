@@ -8,6 +8,8 @@
 #include "config.hsp"
 #include "date.hsp"
 #include "graphic.hsp"
+#include "hash.hsp"
+#include "ocr.hsp"
 #include "getpic.hsp"
 #include "gui.hsp"
 #include "timer.hsp"
@@ -17,7 +19,7 @@
 // 初期化ルーチン
 initConfig
 initDate
-initGraphic
+initOCR
 initGetPic
 initGUI
 initTimer
@@ -48,7 +50,6 @@ repeat
 		}
 		// 遠征タイマー認識
 		if(isExpeditionScene()){
-			addMessage "遠征画面..."
 			getExpeditionTimer
 		}
 		// 各種タイマー更新

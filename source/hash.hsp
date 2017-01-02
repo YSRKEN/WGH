@@ -1,0 +1,111 @@
+/* 画像ハッシュ関係 */
+#module Hash
+	// Difference Hash用
+	#const DHASH_SIZE   2	//64bit＝32bit×2(DHASH_SIZE)で表現
+	#const DHASH_HEIGHT 8	//DHASH_WIDTH×DHASH_HEIGHTピクセル
+	#const DHASH_WIDTH  9	//に縮小した後に符号化
+	// Average Hash用
+	#const AHASH_SIZE   2	//64bit＝32bit×2(AHASH_SIZE)で表現
+	#const AHASH_HEIGHT 8	//AHASH_WIDTH×AHASH_HEIGHTピクセル
+	#const AHASH_WIDTH  8	//に縮小した後に符号化
+	// ビットカウント
+	#defcfunc popcnt int x_
+		x = x_ - ((x_ >> 1) & $55555555)
+		x = (x & $33333333) + ((x >> 2) & $33333333)
+		x = (x + (x >> 4)) & $0f0f0f0f
+		x = x + (x >> 8)
+		x = x + (x >> 16)
+	return x & $3f
+	// ハミング距離を計算する
+	#defcfunc getHummingDistance array data1_, int data2_0_, int data2_1_
+		xor_1 = data1_(0) ^ data2_0_
+		xor_2 = data1_(1) ^ data2_1_
+	return popcnt(xor_1) + popcnt(xor_2)
+	// ハッシュ値を文字列化する
+	#defcfunc hashToStr array data_
+	return strf("%08x,%08x", data_(0), data_(1))
+	// DifferenceHashを取得する
+	#deffunc getDifferenceHash array dhash_, int buffer_id_, double px_, double py_, double wx_, double wy_
+		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
+		px = getPixelPositionX(px_)
+		py = getPixelPositionY(py_)
+		wx = getPixelPositionX(wx_)
+		wy = getPixelPositionY(wy_)
+		// トリミング・リサイズ処理を行う
+		buffer TEMP_BUFFER_ID, DHASH_WIDTH, DHASH_HEIGHT
+		gzoom DHASH_WIDTH, DHASH_HEIGHT, buffer_id_, px, py, wx, wy, 1
+		// 画像をモノクロ化する
+		ddim mono, DHASH_WIDTH, DHASH_HEIGHT
+		for y, 0, DHASH_HEIGHT
+			for x, 0, DHASH_WIDTH
+				pget x, y
+				mono(x, y) = 0.299 * ginfo_r + 0.587 * ginfo_g + 0.114 * ginfo_b
+			next
+		next
+		// 隣接ピクセルとの比較結果を符号化する
+		dim dhash_, DHASH_SIZE
+		for k, 0, DHASH_SIZE
+			for y, k * 4, (k + 1) * 4
+				for x, 0, DHASH_WIDTH - 1
+					dhash_(k) = dhash_(k) << 1
+					if(mono(x, y) > mono(x + 1, y)) :dhash_(k) |= 1
+				next
+			next
+		next
+	return
+	// Average Hashを取得する
+	#deffunc getAverageHash array ahash_, int buffer_id_, double px_, double py_, double wx_, double wy_
+		// ゲーム画面の大きさから、本当のpx・py・wx・wyを取得する
+		px = getPixelPositionX(px_)
+		py = getPixelPositionY(py_)
+		wx = getPixelPositionX(wx_)
+		wy = getPixelPositionY(wy_)
+		// トリミング・リサイズ処理を行う
+		buffer TEMP_BUFFER_ID, AHASH_WIDTH, AHASH_HEIGHT
+		gzoom AHASH_WIDTH, AHASH_HEIGHT, buffer_id_, px, py, wx, wy, 1
+		// 画像をモノクロ化する
+		ddim mono, AHASH_WIDTH, AHASH_HEIGHT
+		for y, 0, AHASH_HEIGHT
+			for x, 0, AHASH_WIDTH
+				pget x, y
+				mono(x, y) = 0.299 * ginfo_r + 0.587 * ginfo_g + 0.114 * ginfo_b
+			next
+		next
+		// 画素値の平均値を取得する
+		sum = 0.0
+		for y, 0, AHASH_HEIGHT
+			for x, 0, AHASH_WIDTH
+				sum += mono(x, y)
+			next
+		next
+		average_lum = sum / AHASH_WIDTH / AHASH_HEIGHT
+		// 平均値より明るいか暗いかで符号化する
+		dim ahash_, AHASH_SIZE
+		for k, 0, AHASH_SIZE
+			for y, k * 4, (k + 1) * 4
+				for x, 0, AHASH_WIDTH - 1
+					ahash_(k) = ahash_(k) << 1
+					if(mono(x, y) > average_lum) :ahash_(k) |= 1
+				next
+			next
+		next
+	return
+	// 遠征艦隊番号を判定する
+	#defcfunc judgeExpFleets array ahash_
+		dim exp_fleets_distance, FLEET_SIZE
+		exp_fleets_distance(0) = getHummingDistance(ahash_, $19191c1c, $1c1c1f2f)
+		exp_fleets_distance(1) = getHummingDistance(ahash_, $181ec7c6, $8e1c7b6e)
+		exp_fleets_distance(2) = getHummingDistance(ahash_, $381ec60e, $3c06c61e)
+		exp_fleets_distance(3) = getHummingDistance(ahash_, $cc8e0e4e, $cecf0fce)
+		;logmes "" + exp_fleets_distance@Hash(0) + " " + exp_fleets_distance@Hash(1) + " " + exp_fleets_distance@Hash(2) + " " + exp_fleets_distance@Hash(3)
+		min_distance = exp_fleets_distance(0)
+		min_index = 0
+		for k, 1, FLEET_SIZE
+			if(min_distance > exp_fleets_distance(k)){
+				min_distance = exp_fleets_distance(k)
+				min_index = k
+			}
+		next
+		if(min_distance < 20) :return min_index
+		return -1
+#global
